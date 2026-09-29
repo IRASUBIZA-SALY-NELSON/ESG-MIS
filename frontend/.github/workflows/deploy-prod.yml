@@ -1,0 +1,39 @@
+name: Prod Deploy to SSH Server
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '.vscode/**'
+
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy and restart application
+        run: |
+          set -e
+
+          cd ~/apps/rca_app
+
+          git fetch origin main
+          git reset --hard origin/main
+
+          export NVM_DIR=~/.nvm
+          source ~/.nvm/nvm.sh
+
+          chmod +x scripts/create_prod_env.sh
+          ./scripts/create_prod_env.sh
+          rm -rf package-lock.json
+          pnpm install
+          pnpm run build
+          pm2 start ecosystem.config.cjs --only rca-app
+
+          pm2 restart rca-app

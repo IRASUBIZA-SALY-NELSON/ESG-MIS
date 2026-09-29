@@ -1,0 +1,41 @@
+{
+  "extends": [
+    "plugin:@typescript-eslint/recommended",
+    "next/core-web-vitals",
+    "next",
+    "plugin:prettier/recommended",
+    "eslint:recommended"
+  ],
+  "rules": {
+    "import/no-anonymous-default-export": "off",
+    "react/no-unescaped-entities": 0,
+    "@next/next/no-img-element": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "react/display-name": "off",
+    "prefer-const": "warn",
+    "no-unused-vars": "off",
+    "react-hooks/exhaustive-deps": "off",
+    "@next/next/no-async-client-component": "off",
+    "react-hooks/rules-of-hooks": "off",
+    "prettier/prettier": [
+      "warn",
+      {
+        "endOfLine": "auto",
+        "singleQuote": true,
+        "trailingComma": "all",
+        "tabWidth": 2,
+        "semi": true,
+        "printWidth": 100,
+        "bracketSpacing": true
+      }
+    ]
+  },
+  "parser": "@typescript-eslint/parser",
+  "overrides": [
+    {
+      "files": ["src/**/*.ts", "src/**/*.tsx"],
+      "excludedFiles": ["*.js", "*.jsx", "*.json", "*.config.js"]
+    }
+  ]
+}

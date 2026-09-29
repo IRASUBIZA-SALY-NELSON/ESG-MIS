@@ -1,0 +1,186 @@
+[
+  {
+    "createdAt": "2023-11-25 16:50:17",
+    "updatedAt": "2023-11-25 16:50:17",
+    "id": "e47e9cd1-06b9-4f5e-8f1b-d5cab599a5a3",
+    "courseName": "Physics",
+    "courseCredits": 4,
+    "courseWeight": 40,
+    "visibility": null,
+    "classList": [
+      {
+        "createdAt": "2023-11-25 16:50:46",
+        "updatedAt": "2023-11-26 18:12:58",
+        "id": "e475803f-4fd2-49d2-8ce2-4d9d18208fa4",
+        "classCode": null,
+        "className": "Y2B",
+        "studentsNumber": 30,
+        "studentsRemaining": 30,
+        "visibility": "VISIBLE",
+        "classTeacher": null,
+        "classMonitor": null,
+        "classMonitress": null,
+        "coursesList": null,
+        "myCourses": null
+      },
+      {
+        "createdAt": "2023-11-26 18:13:18",
+        "updatedAt": "2023-11-26 18:14:00",
+        "id": "0f330f71-9e10-47a5-a3c2-bfd43727ca9f",
+        "classCode": null,
+        "className": "Y1A",
+        "studentsNumber": 30,
+        "studentsRemaining": 30,
+        "visibility": "VISIBLE",
+        "classTeacher": null,
+        "classMonitor": null,
+        "classMonitress": null,
+        "coursesList": null,
+        "myCourses": null
+      },
+      {
+        "createdAt": "2023-11-26 18:13:41",
+        "updatedAt": "2023-11-26 18:14:16",
+        "id": "7a238853-b592-4989-a185-df9d164b95ff",
+        "classCode": null,
+        "className": "Y3A",
+        "studentsNumber": 30,
+        "studentsRemaining": 30,
+        "visibility": "VISIBLE",
+        "classTeacher": null,
+        "classMonitor": null,
+        "classMonitress": null,
+        "coursesList": null,
+        "myCourses": null
+      }
+    ],
+    "termsList": [
+      {
+        "createdAt": "2023-11-25 16:31:41",
+        "updatedAt": "2023-11-25 16:31:41",
+        "id": "67447430-a078-4391-9a28-38f668fd1b07",
+        "name": "FIRST_TERM",
+        "startDate": -61214234400000,
+        "endDate": -61206372000000,
+        "academicYear": {
+          "createdAt": "2023-11-25 17:31:48",
+          "updatedAt": "2023-11-26 11:13:50",
+          "id": "4955bca3-6285-4d6b-a17a-6887f2c8b4a0",
+          "name": "2024/2023",
+          "startYear": 2024,
+          "endYear": 2023,
+          "disciplineMarksPassMark": 30
+        }
+      },
+      {
+        "createdAt": "2023-11-25 16:31:41",
+        "updatedAt": "2023-11-25 16:31:41",
+        "id": "67447430-a078-4391-9a28-38f668fd1b07",
+        "name": "SECOND_TERM",
+        "startDate": -61214234400000,
+        "endDate": -61206372000000,
+        "academicYear": {
+          "createdAt": "2023-11-25 17:31:48",
+          "updatedAt": "2023-11-26 11:13:50",
+          "id": "4955bca3-6285-4d6b-a17a-6887f2c8b4a0",
+          "name": "2024/2023",
+          "startYear": 2024,
+          "endYear": 2023,
+          "disciplineMarksPassMark": 30
+        }
+      }
+    ]
+  },
+  {
+    "createdAt": "2023-11-25 16:50:17",
+    "updatedAt": "2023-11-25 16:50:17",
+    "id": "e47e9cd1-06b9-4f5e-8f1b-d5cab599a5a3",
+    "courseName": "Physics",
+    "courseCredits": 4,
+    "courseWeight": 40,
+    "visibility": null,
+    "classList": [
+      {
+        "createdAt": "2023-11-25 16:50:46",
+        "updatedAt": "2023-11-26 18:12:58",
+        "id": "e475803f-4fd2-49d2-8ce2-4d9d18208fa4",
+        "classCode": null,
+        "className": "Y2B",
+        "studentsNumber": 30,
+        "studentsRemaining": 30,
+        "visibility": "VISIBLE",
+        "classTeacher": null,
+        "classMonitor": null,
+        "classMonitress": null,
+        "coursesList": null,
+        "myCourses": null
+      },
+      {
+        "createdAt": "2023-11-26 18:13:18",
+        "updatedAt": "2023-11-26 18:14:00",
+        "id": "0f330f71-9e10-47a5-a3c2-bfd43727ca9f",
+        "classCode": null,
+        "className": "Y1A",
+        "studentsNumber": 30,
+        "studentsRemaining": 30,
+        "visibility": "VISIBLE",
+        "classTeacher": null,
+        "classMonitor": null,
+        "classMonitress": null,
+        "coursesList": null,
+        "myCourses": null
+      },
+      {
+        "createdAt": "2023-11-26 18:13:41",
+        "updatedAt": "2023-11-26 18:14:16",
+        "id": "7a238853-b592-4989-a185-df9d164b95ff",
+        "classCode": null,
+        "className": "Y3A",
+        "studentsNumber": 30,
+        "studentsRemaining": 30,
+        "visibility": "VISIBLE",
+        "classTeacher": null,
+        "classMonitor": null,
+        "classMonitress": null,
+        "coursesList": null,
+        "myCourses": null
+      }
+    ],
+    "termsList": [
+      {
+        "createdAt": "2023-11-25 16:31:41",
+        "updatedAt": "2023-11-25 16:31:41",
+        "id": "67447430-a078-4391-9a28-38f668fd1b07",
+        "name": "FIRST_TERM",
+        "startDate": -61214234400000,
+        "endDate": -61206372000000,
+        "academicYear": {
+          "createdAt": "2023-11-25 17:31:48",
+          "updatedAt": "2023-11-26 11:13:50",
+          "id": "4955bca3-6285-4d6b-a17a-6887f2c8b4a033",
+          "name": "2025/2023",
+          "startYear": 2025,
+          "endYear": 2023,
+          "disciplineMarksPassMark": 30
+        }
+      },
+      {
+        "createdAt": "2023-11-25 16:31:41",
+        "updatedAt": "2023-11-25 16:31:41",
+        "id": "67447430-a078-4391-9a28-38f668fd1b07",
+        "name": "SECOND_TERM",
+        "startDate": -61214234400000,
+        "endDate": -61206372000000,
+        "academicYear": {
+          "createdAt": "2023-11-25 17:31:48",
+          "updatedAt": "2023-11-26 11:13:50",
+          "id": "4955bca3-6285-4d6b-a17a-6887f2c8b4a033",
+          "name": "2025/2023",
+          "startYear": 2025,
+          "endYear": 2023,
+          "disciplineMarksPassMark": 30
+        }
+      }
+    ]
+  }
+]

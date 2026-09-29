@@ -1,0 +1,21 @@
+# Local logins export
+esg-credentials.json
+
+# Backend build output and local database / uploaded files
+backend/target/
+backend/data/
+backend/data-backup-*/
+*.mv.db
+*.trace.db
+
+# Frontend
+node_modules/
+.next/
+.env
+.env*.local
+
+# Editors / OS
+.idea/
+.vscode/
+*.log
+.DS_Store

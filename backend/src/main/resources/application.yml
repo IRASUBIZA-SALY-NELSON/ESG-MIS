@@ -1,0 +1,35 @@
+server:
+  port: 6543
+  address: 0.0.0.0
+
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/esg_mis;MODE=PostgreSQL;AUTO_SERVER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: true
+    properties:
+      hibernate:
+        format_sql: false
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 55MB
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+  h2:
+    console:
+      enabled: false
+
+app:
+  jwt:
+    secret: esg-mis-dev-jwt-secret-key-change-me-32b
+    expiration-ms: 86400000
+  cors:
+    origins: http://localhost:5443,http://127.0.0.1:5443,http://192.168.0.115:5443

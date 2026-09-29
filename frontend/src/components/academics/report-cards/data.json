@@ -1,0 +1,436 @@
+{
+  "studentInfo": {
+    "createdAt": "2023-10-31 07:46:54",
+    "updatedAt": "2023-11-06 18:05:36",
+    "id": "d055f716-a346-40db-949c-6fb39f394c0a",
+    "firstName": "MUGISHA",
+    "lastName": "Yves",
+    "email": "mugishayves@gmail.com",
+    "username": "yves",
+    "lastLogin": 1699293910365,
+    "gender": "MALE",
+    "profilePicture": "https://www.pngwing.com/en/search?q=woman+Avatar",
+    "password": "$2a$10$eIFwPKWxLTr8E1og1gha2urtTz1GBWyAgCU9K1Gx9rEjeQX8V69VO",
+    "activationCode": "204907",
+    "status": "ACTIVE",
+    "phoneNumber": "+0798782003",
+    "nationalId": null,
+    "address": {
+      "createdAt": "2023-10-31 07:46:52",
+      "updatedAt": "2023-10-31 07:46:52",
+      "id": "b036b8b9-96f5-41c8-9a46-609a56e59552",
+      "country": "RWANDA",
+      "province": "WEST",
+      "district": "RUBAVU",
+      "sector": "JENDA",
+      "cell": "REGA",
+      "village": "KAJEBESHI",
+      "instructors": []
+    },
+    "yearsToStudy": 3,
+    "hasRepeated": false,
+    "disciplineMarksToBeRemoved": 143,
+    "parents": null,
+    "currentClass": {
+      "createdAt": "2023-11-01 19:46:52",
+      "updatedAt": "2023-11-04 20:01:27",
+      "id": "58e9ef5b-9686-4613-b650-cb41d326447e",
+      "className": "Year 2 A",
+      "studentsNumber": 30,
+      "studentsRemaining": 28,
+      "classTeacher": null,
+      "classMonitor": null,
+      "classMonitress": null
+    }
+  },
+  "academicYearInfo": {
+    "createdAt": "2023-10-31 09:47:49",
+    "updatedAt": "2023-11-06 07:09:17",
+    "id": "5d2f3c3a-df73-436e-8ce0-7b81c8a09785",
+    "name": "2023-2024",
+    "startYear": 2023,
+    "endYear": 2024,
+    "disciplineMarksPassMark": 30,
+    "studentList": null,
+    "staffMembers": [],
+    "teachers": [],
+    "classes": null,
+    "courses": [
+      {
+        "createdAt": "2023-10-31 08:22:21",
+        "updatedAt": "2023-10-31 08:22:21",
+        "id": "9bc508db-c42d-445f-a1e3-cdc5dc29a470",
+        "courseName": "Devops",
+        "courseCredits": 3,
+        "courseWeight": 30,
+        "classes": [
+          {
+            "createdAt": "2023-10-31 16:05:34",
+            "updatedAt": "2023-11-02 00:15:57",
+            "id": "03168b94-0eff-4ad4-9a81-9c73084a097b",
+            "className": "Year 1 B",
+            "studentsNumber": 30,
+            "studentsRemaining": 0,
+            "classTeacher": null,
+            "classMonitor": null,
+            "classMonitress": null
+          }
+        ]
+      },
+      {
+        "createdAt": "2023-10-31 08:22:32",
+        "updatedAt": "2023-10-31 08:22:32",
+        "id": "8b0f66cd-e4b7-4b61-a404-96baf2718327",
+        "courseName": "English",
+        "courseCredits": 4,
+        "courseWeight": 40,
+        "classes": [
+          {
+            "createdAt": "2023-10-31 16:05:34",
+            "updatedAt": "2023-11-02 00:15:57",
+            "id": "03168b94-0eff-4ad4-9a81-9c73084a097b",
+            "className": "Year 1 B",
+            "studentsNumber": 30,
+            "studentsRemaining": 0,
+            "classTeacher": null,
+            "classMonitor": null,
+            "classMonitress": null
+          },
+          {
+            "createdAt": "2023-10-31 16:05:07",
+            "updatedAt": "2023-11-02 05:21:11",
+            "id": "b7192ab9-b6eb-479e-bf5a-af37abf15376",
+            "className": "Year 1 A",
+            "studentsNumber": 30,
+            "studentsRemaining": 0,
+            "classTeacher": null,
+            "classMonitor": null,
+            "classMonitress": null
+          },
+          {
+            "createdAt": "2023-11-01 19:46:52",
+            "updatedAt": "2023-11-04 20:01:27",
+            "id": "58e9ef5b-9686-4613-b650-cb41d326447e",
+            "className": "Year 2 A",
+            "studentsNumber": 30,
+            "studentsRemaining": 28,
+            "classTeacher": null,
+            "classMonitor": null,
+            "classMonitress": null
+          }
+        ]
+      },
+      {
+        "createdAt": "2023-10-31 08:22:48",
+        "updatedAt": "2023-10-31 08:22:48",
+        "id": "bd17bf1f-5a13-4529-8a9b-0a2b87a469e8",
+        "courseName": "WUI",
+        "courseCredits": 3,
+        "courseWeight": 30,
+        "classes": [
+          {
+            "createdAt": "2023-10-31 16:05:07",
+            "updatedAt": "2023-11-02 05:21:11",
+            "id": "b7192ab9-b6eb-479e-bf5a-af37abf15376",
+            "className": "Year 1 A",
+            "studentsNumber": 30,
+            "studentsRemaining": 0,
+            "classTeacher": null,
+            "classMonitor": null,
+            "classMonitress": null
+          }
+        ]
+      },
+      {
+        "createdAt": "2023-10-31 08:23:05",
+        "updatedAt": "2023-10-31 08:23:05",
+        "id": "552a7f90-d953-4b19-8095-108691b3d0f4",
+        "courseName": "Math",
+        "courseCredits": 4,
+        "courseWeight": 40,
+        "classes": [
+          {
+            "createdAt": "2023-10-31 16:05:07",
+            "updatedAt": "2023-11-02 05:21:11",
+            "id": "b7192ab9-b6eb-479e-bf5a-af37abf15376",
+            "className": "Year 1 A",
+            "studentsNumber": 30,
+            "studentsRemaining": 0,
+            "classTeacher": null,
+            "classMonitor": null,
+            "classMonitress": null
+          },
+          {
+            "createdAt": "2023-11-01 19:46:52",
+            "updatedAt": "2023-11-04 20:01:27",
+            "id": "58e9ef5b-9686-4613-b650-cb41d326447e",
+            "className": "Year 2 A",
+            "studentsNumber": 30,
+            "studentsRemaining": 28,
+            "classTeacher": null,
+            "classMonitor": null,
+            "classMonitress": null
+          }
+        ]
+      },
+      {
+        "createdAt": "2023-10-31 11:53:37",
+        "updatedAt": "2023-10-31 11:53:37",
+        "id": "48d78fd1-d26a-437d-aa80-d30032110ccd",
+        "courseName": "Physics",
+        "courseCredits": 34,
+        "courseWeight": 50,
+        "classes": [
+          {
+            "createdAt": "2023-10-31 16:05:07",
+            "updatedAt": "2023-11-02 05:21:11",
+            "id": "b7192ab9-b6eb-479e-bf5a-af37abf15376",
+            "className": "Year 1 A",
+            "studentsNumber": 30,
+            "studentsRemaining": 0,
+            "classTeacher": null,
+            "classMonitor": null,
+            "classMonitress": null
+          },
+          {
+            "createdAt": "2023-11-01 19:46:52",
+            "updatedAt": "2023-11-04 20:01:27",
+            "id": "58e9ef5b-9686-4613-b650-cb41d326447e",
+            "className": "Year 2 A",
+            "studentsNumber": 30,
+            "studentsRemaining": 28,
+            "classTeacher": null,
+            "classMonitor": null,
+            "classMonitress": null
+          }
+        ]
+      },
+      {
+        "createdAt": "2023-10-31 17:25:25",
+        "updatedAt": "2023-10-31 17:25:25",
+        "id": "8d0cf186-6fd5-4c40-acac-ad6df7258919",
+        "courseName": "Mathematics",
+        "courseCredits": 34,
+        "courseWeight": 50,
+        "classes": [
+          {
+            "createdAt": "2023-10-31 16:05:07",
+            "updatedAt": "2023-11-02 05:21:11",
+            "id": "b7192ab9-b6eb-479e-bf5a-af37abf15376",
+            "className": "Year 1 A",
+            "studentsNumber": 30,
+            "studentsRemaining": 0,
+            "classTeacher": null,
+            "classMonitor": null,
+            "classMonitress": null
+          },
+          {
+            "createdAt": "2023-11-01 19:46:52",
+            "updatedAt": "2023-11-04 20:01:27",
+            "id": "58e9ef5b-9686-4613-b650-cb41d326447e",
+            "className": "Year 2 A",
+            "studentsNumber": 30,
+            "studentsRemaining": 28,
+            "classTeacher": null,
+            "classMonitor": null,
+            "classMonitress": null
+          }
+        ]
+      },
+      {
+        "createdAt": "2023-10-31 08:21:56",
+        "updatedAt": "2023-10-31 19:30:29",
+        "id": "57c8c8ba-87e1-4800-98a8-5efdde13843e",
+        "courseName": "Project Management",
+        "courseCredits": 3,
+        "courseWeight": 30,
+        "classes": []
+      },
+      {
+        "createdAt": "2023-11-06 14:10:27",
+        "updatedAt": "2023-11-06 14:10:27",
+        "id": "441c3e6f-7e7d-4adb-8869-4892c1b8d9fe",
+        "courseName": "Web 3",
+        "courseCredits": 3,
+        "courseWeight": 30,
+        "classes": []
+      }
+    ]
+  },
+  "reportCard": {
+    "FIRST_TERM": {
+      "English": [
+        {
+          "createdAt": null,
+          "updatedAt": null,
+          "id": "7deef0d7-74c9-45ea-91e9-c0b596320080",
+          "markType": "CAT",
+          "course": {
+            "createdAt": "2023-10-31 08:22:32",
+            "updatedAt": "2023-10-31 08:22:32",
+            "id": "8b0f66cd-e4b7-4b61-a404-96baf2718327",
+            "courseName": "English",
+            "courseCredits": 4,
+            "courseWeight": 40,
+            "classes": [
+              {
+                "createdAt": "2023-10-31 16:05:34",
+                "updatedAt": "2023-11-02 00:15:57",
+                "id": "03168b94-0eff-4ad4-9a81-9c73084a097b",
+                "className": "Year 1 B",
+                "studentsNumber": 30,
+                "studentsRemaining": 0,
+                "classTeacher": null,
+                "classMonitor": null,
+                "classMonitress": null
+              },
+              {
+                "createdAt": "2023-10-31 16:05:07",
+                "updatedAt": "2023-11-02 05:21:11",
+                "id": "b7192ab9-b6eb-479e-bf5a-af37abf15376",
+                "className": "Year 1 A",
+                "studentsNumber": 30,
+                "studentsRemaining": 0,
+                "classTeacher": null,
+                "classMonitor": null,
+                "classMonitress": null
+              },
+              {
+                "createdAt": "2023-11-01 19:46:52",
+                "updatedAt": "2023-11-04 20:01:27",
+                "id": "58e9ef5b-9686-4613-b650-cb41d326447e",
+                "className": "Year 2 A",
+                "studentsNumber": 30,
+                "studentsRemaining": 28,
+                "classTeacher": null,
+                "classMonitor": null,
+                "classMonitress": null
+              }
+            ]
+          },
+          "marks": 37,
+          "weight": 40,
+          "marksStatus": "PASS",
+          "comment": null
+        },
+        {
+          "createdAt": null,
+          "updatedAt": null,
+          "id": "7deef0d7-74c9-45ea-91e9-c0b596320080",
+          "markType": "EXAM",
+          "course": {
+            "createdAt": "2023-10-31 08:22:32",
+            "updatedAt": "2023-10-31 08:22:32",
+            "id": "8b0f66cd-e4b7-4b61-a404-96baf2718327",
+            "courseName": "English",
+            "courseCredits": 4,
+            "courseWeight": 40,
+            "classes": [
+              {
+                "createdAt": "2023-10-31 16:05:34",
+                "updatedAt": "2023-11-02 00:15:57",
+                "id": "03168b94-0eff-4ad4-9a81-9c73084a097b",
+                "className": "Year 1 B",
+                "studentsNumber": 30,
+                "studentsRemaining": 0,
+                "classTeacher": null,
+                "classMonitor": null,
+                "classMonitress": null
+              },
+              {
+                "createdAt": "2023-10-31 16:05:07",
+                "updatedAt": "2023-11-02 05:21:11",
+                "id": "b7192ab9-b6eb-479e-bf5a-af37abf15376",
+                "className": "Year 1 A",
+                "studentsNumber": 30,
+                "studentsRemaining": 0,
+                "classTeacher": null,
+                "classMonitor": null,
+                "classMonitress": null
+              },
+              {
+                "createdAt": "2023-11-01 19:46:52",
+                "updatedAt": "2023-11-04 20:01:27",
+                "id": "58e9ef5b-9686-4613-b650-cb41d326447e",
+                "className": "Year 2 A",
+                "studentsNumber": 30,
+                "studentsRemaining": 28,
+                "classTeacher": null,
+                "classMonitor": null,
+                "classMonitress": null
+              }
+            ]
+          },
+          "marks": 35,
+          "weight": 40,
+          "marksStatus": "PASS",
+          "comment": null
+        }
+      ],
+      "Devops": [
+        {
+          "createdAt": null,
+          "updatedAt": null,
+          "id": "aa186125-ee93-4755-a436-b279722a4f33",
+          "markType": "CAT",
+          "course": {
+            "createdAt": "2023-10-31 08:22:21",
+            "updatedAt": "2023-10-31 08:22:21",
+            "id": "9bc508db-c42d-445f-a1e3-cdc5dc29a470",
+            "courseName": "Devops",
+            "courseCredits": 3,
+            "courseWeight": 30,
+            "classes": [
+              {
+                "createdAt": "2023-10-31 16:05:34",
+                "updatedAt": "2023-11-02 00:15:57",
+                "id": "03168b94-0eff-4ad4-9a81-9c73084a097b",
+                "className": "Year 1 B",
+                "studentsNumber": 30,
+                "studentsRemaining": 0,
+                "classTeacher": null,
+                "classMonitor": null,
+                "classMonitress": null
+              }
+            ]
+          },
+          "marks": 30,
+          "weight": 30,
+          "marksStatus": "PASS",
+          "comment": null
+        },
+        {
+          "createdAt": null,
+          "updatedAt": null,
+          "id": "aa186125-ee93-4755-a436-b279722a4f33",
+          "markType": "EXAM",
+          "course": {
+            "createdAt": "2023-10-31 08:22:21",
+            "updatedAt": "2023-10-31 08:22:21",
+            "id": "9bc508db-c42d-445f-a1e3-cdc5dc29a470",
+            "courseName": "Devops",
+            "courseCredits": 3,
+            "courseWeight": 30,
+            "classes": [
+              {
+                "createdAt": "2023-10-31 16:05:34",
+                "updatedAt": "2023-11-02 00:15:57",
+                "id": "03168b94-0eff-4ad4-9a81-9c73084a097b",
+                "className": "Year 1 B",
+                "studentsNumber": 30,
+                "studentsRemaining": 0,
+                "classTeacher": null,
+                "classMonitor": null,
+                "classMonitress": null
+              }
+            ]
+          },
+          "marks": 25,
+          "weight": 30,
+          "marksStatus": "PASS",
+          "comment": null
+        }
+      ]
+    }
+  }
+}

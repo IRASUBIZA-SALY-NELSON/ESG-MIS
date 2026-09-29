@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .page {
+        background-color: #ffffff;
+        padding: 1cm;
+      }
+      .container {
+        display: flex;
+        flex-direction: column;
+        border: 2px solid black;
+        padding: 1cm;
+      }
+      .header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 1cm;
+      }
+      .headerTextTw {
+        font-weight: bold;
+        font-size: 8px;
+      }
+      .midTextTw {
+        font-weight: bold;
+        font-size: 7px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="container">
+        <div class="header">
+          <div class="flex flex-col gap-1">
+            <p class="headerTextTw">REPUBLIC OF RWANDA</p>
+            <p class="headerTextTw">MINISTRY OF EDUCATION</p>
+            <p class="headerTextTw">RWANDA CODING ACADEMY</p>
+            <img class="w-20" src="logo.png" alt="ESG" />
+            <p class="midTextTw">Telephone:(+250)788548000</p>
+            <p class="midTextTw">Email: papiasni@gmail.com</p>
+          </div>
+          <div class="w-24 object-cover aspect-w-6 aspect-h-7 border border-black">
+            <img class="object-cover" src="photo.png" alt="Photo" />
+          </div>
+          <div class="flex flex-col gap-1">
+            <p class="headerTextTw">Academic Year :2023-2023</p>
+            <div class="flex flex-row items-center">
+              <p class="headerTextTw">Class:</p>
+              <p class="headerTextTw">Year 3A</p>
+            </div>
+            <p class="headerTextTw">Name: NIYONSENGA Valens</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

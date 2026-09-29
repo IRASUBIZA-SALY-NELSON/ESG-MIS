@@ -1,0 +1,45 @@
+
+        <table
+          // style={{ border: '2px' }}
+          className=" w-full mt-8 border-collapse font-medium border-2"
+        >
+          <tbody>
+            <tr className=" uppercase w-full">
+              <Td rowSpan={2} style={{ width: getWs(6) }} className={``}>
+                COURSES
+              </Td>
+              <Td colSpan={3} style={{ width: getWs(6) }} className={``}>
+                FIRST TERM
+              </Td>
+              <Td colSpan={3} style={{ width: getWs(6) }} className={``}>
+                SECOND TERM
+              </Td>
+              <Td colSpan={3} style={{ width: getWs(6) }} className={``}>
+                THIRD TERM
+              </Td>
+              <Td colSpan={2} style={{ width: getWs(3) }} className=" px-4">
+                YEAR
+              </Td>
+              <Td rowSpan={2} style={{ width: getWs(2) }} className="px-2">
+                GRADE
+              </Td>
+            </tr>
+            <tr>
+              {/* 1st term */}
+              <Td>CAT</Td>
+              <Td>EXAM</Td>
+              <Td>TOT</Td>
+              {/* 2nd term */}
+              <Td>CAT</Td>
+              <Td>EXAM</Td>
+              <Td>TOT</Td>
+              {/* 3rd term */}
+              <Td>CAT</Td>
+              <Td>EXAM</Td>
+              <Td>TOT</Td>
+              {/* year */}
+              <Td>TOT</Td>
+              <Td>%</Td>
+            </tr>
+          </tbody>
+        </table>

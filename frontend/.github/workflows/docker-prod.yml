@@ -1,0 +1,37 @@
+name: Prod Deploy to Server (Docker)
+
+on:
+  # push:
+  #   branches:
+  #     - main 
+  #   paths-ignore: ['.vscode/**']
+  workflow_dispatch: {}
+jobs:
+  deploy:
+    runs-on: [self-hosted, Linux, X64, rcamis, koica-server]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create Env files
+        run: |
+          chmod +x scripts/create_prod_env.sh
+          ./scripts/create_prod_env.sh
+
+      - name: Stop and remove existing Docker container
+        run: |
+          sudo docker stop rca-app-prod || true
+          sudo docker rm rca-app-prod || true
+
+      - name: Build & Run Docker Image
+        run: |
+          sudo docker build --build-arg APP_PORT=9099 --build-arg isProd=true -t rca-app-prod .
+          sudo docker run -d --name rca-app-prod -p 9099:9099 rca-app-prod:latest
+
+      - name: Clean Up Repository Files
+        run: |
+          ls -la ./
+          rm -rf ./* || true
+          rm -rf ./.??* || true
+          ls -la ./

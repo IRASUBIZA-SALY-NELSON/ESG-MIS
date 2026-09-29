@@ -1,0 +1,93 @@
+.mainth {
+  border-top: 2px dashed #000;
+  border-bottom: 2px dashed #000;
+  position: relative;
+}
+/* Add + sign in the joints of the border cells */
+.mainth:first-child {
+  /* position: relative; */
+}
+
+.th {
+  background-color: #eaebed;
+  position: relative;
+}
+
+.td {
+  position: relative;
+}
+/* Add '|' before and after cell */
+.td::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  translate: -50% -50%;
+  left: -1px;
+  font-size: 13px;
+  font-weight: 600;
+  background-color: #000;
+  height: 80%;
+  width: 1.5px;
+}
+
+.lasttd {
+  position: relative;
+}
+.lasttd::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  translate: -50% -50%;
+  right: -1px;
+  font-size: 13px;
+  font-weight: 600;
+  background-color: #000;
+  height: 80%;
+  width: 1.5px;
+}
+
+.td {
+  padding: 0px 3px;
+}
+
+.th::before {
+  content: '+';
+  position: absolute;
+  top: -11px;
+  left: -4px;
+  font-size: 13px;
+  font-weight: bold;
+}
+.th::after {
+  content: '+';
+  position: absolute;
+  top: -11px;
+  right: -4px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.firstR {
+  position: relative;
+}
+
+.firstR::before {
+  content: '+';
+  position: absolute;
+  top: -11px;
+  left: -4px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.firstR::after {
+  content: '+';
+  position: absolute;
+  top: -11px;
+  right: -4px;
+  font-size: 13px;
+  font-weight: bold;
+}
+.table {
+  border-bottom: 2px dashed #000;
+}

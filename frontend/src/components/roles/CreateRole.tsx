@@ -1,0 +1,104 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import InputWrapper from '@/components/core/Input/InputWrapper';
+import CustomInput from '@/components/core/input';
+import AsyncMultiSelect from '@/components/core/selects/AsyncMultiSelect';
+import useGet from '@/hooks/useGet';
+import { ICourse } from '@/types/course.type';
+import { Teacher } from '@/types/teacher.type';
+import { AuthApi } from '@/utils/constants';
+import { getResError } from '@/utils/fetch';
+import { TagsInput, Button, MultiSelect } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
+import React, { FC, useState } from 'react';
+import { AiOutlineReload } from 'react-icons/ai';
+import { BiCheck } from 'react-icons/bi';
+import AsyncSelect from '../core/selects/AsyncSelect';
+
+interface Props {
+  onClose: () => void;
+  refetch: () => void;
+}
+
+const CreateRole: FC<Props> = ({ onClose, refetch }) => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [loadingCourses, setLoadingCourses] = useState<boolean>(false);
+  const [privileges, setPrivileges] = useState<{ id: string; label: string }[]>([]);
+  const [data, setData] = useState<{ name: string; description: string; privileges: string[] }>();
+  const handleAssignLesson = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await AuthApi.put('/teachers/assign/courses');
+
+      notifications.show({
+        title: 'Courses Assigned',
+        message: 'Courses have been assigned successfully',
+        color: 'green',
+      });
+      refetch();
+      onClose();
+    } catch (err) {
+      const resErr = getResError(err);
+      notifications.show({
+        title: 'Failed to Update Course',
+        message: resErr,
+        color: 'red',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  const [selected, setSelected] = useState<string[]>([]);
+  const loadingData = [{ value: 'loading', label: 'Loading...', disabled: true }];
+  return (
+    <form className=" w-full flex flex-col gap-y-3 p-12" onSubmit={handleAssignLesson}>
+      {/* {loading && <h1 className=" text-xs text-center">Loading...</h1>} */}
+      <CustomInput
+        label="Name"
+        type="text"
+        placeholder="The name of your new role"
+        name="name"
+        required
+        // value={className}
+        // onChange={(e) => setClassName(e.target.value)}
+        // error={error.className}
+      />
+      <CustomInput
+        label="Description"
+        name="The description of the new role to be created"
+        type="text"
+        required
+        // value={studentsNumber}
+        // onChange={(e) => setStudentsNumber(e.target.value)}
+        // error={error.studentsNumber}
+      />
+      <InputWrapper label="Roles/Allowed Privileges" description="">
+        {!loadingCourses && (
+          <AsyncMultiSelect
+            datasrc="/privileges/all"
+            placeholder="Add privileges"
+            labelKey="privileges"
+            value={privileges?.map((privilege) => privilege.id)}
+            onChange={(e: string) => {
+              //@ts-ignore
+              setData({ ...data, privileges: [data?.privileges ?? [], e] });
+            }}
+          />
+        )}
+      </InputWrapper>
+      <Button
+        disabled={loading}
+        loading={loading}
+        variant="filled"
+        className=" mt-4"
+        w={60}
+        mx={'auto'}
+        type="submit"
+      >
+        <BiCheck size={25} />
+      </Button>
+    </form>
+  );
+};
+
+export default CreateRole;
