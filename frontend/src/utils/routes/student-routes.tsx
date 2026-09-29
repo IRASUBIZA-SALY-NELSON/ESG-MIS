@@ -81,6 +81,11 @@ const studentRoutes: SideBarRoute[] = [
     path: '/student/library',
     icon: FaBook,
   },
+  {
+    name: 'My Bills',
+    path: '/student/bills',
+    icon: FaFileAlt,
+  },
   // {
   //   name: 'Docs / Resources',
   //   path: '',

@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
+import { useFormDraft } from '@/hooks/useFormDraft';
+import DraftNotice from '@/components/core/DraftNotice';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { getCookie } from 'cookies-next';
 import axios from 'axios';
@@ -32,13 +34,16 @@ const NewStudent = () => {
     registerCode: yup.string().required('Please provide the register code'),
     phone: yup.string().required("Please provide the new staff member's phone Number"),
   });
+  const form = useForm({
+    resolver: yupResolver(schema),
+  });
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
-  } = useForm({
-    resolver: yupResolver(schema),
-  });
+  } = form;
+  const { savedAt, clear } = useFormDraft(form);
   const handleFilesSelected = (filetype: string, files: File[]) => {
     setSelectedFile(files[0]);
   };
@@ -73,6 +78,7 @@ const NewStudent = () => {
         },
       })
       .then((res) => {
+        clear();
         toast.success('Student Registered');
         router.push('/staff/students');
       })
@@ -101,6 +107,13 @@ const NewStudent = () => {
       <p className="text-[rgba(67,67,67,0.43)] my-2 capitalize">
         Add a new Staff Member to ESG community
       </p>
+      <DraftNotice
+        savedAt={savedAt}
+        onDiscard={() => {
+          clear();
+          reset();
+        }}
+      />
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="my-10 grid grid-cols-2 gap-5">
           <FileDropZone

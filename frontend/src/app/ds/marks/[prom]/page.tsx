@@ -83,8 +83,10 @@ const OneClass = () => {
         setLoading(true);
         const academicYearsResponse = await getAcademicYears();
         const currentAcademicYear = getCurrentYear(academicYearsResponse.data);
-        setActiveYear(currentAcademicYear.id);
-        setAcadYearsFilter(currentAcademicYear.name);
+        if (currentAcademicYear) {
+          setActiveYear(currentAcademicYear.id);
+          setAcadYearsFilter(currentAcademicYear.name);
+        }
         setYears(academicYearsResponse.data);
       } catch (error) {
         setError(true);
@@ -205,7 +207,6 @@ const OneClass = () => {
       </MainModal> */}
       <MainModal onClose={() => setDeductMany(false)} size={'lg'} isOpen={deductMany}>
         <DeductMany
-          termId={activeTerm}
           onCancel={() => {
             setDeductMany(false);
           }}

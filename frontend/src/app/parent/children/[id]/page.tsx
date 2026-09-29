@@ -1,6 +1,7 @@
 'use client';
 import { useParentData } from '@/components/parent/api';
 import AppealsTab from '@/components/parent/child/AppealsTab';
+import BillsTab from '@/components/parent/child/BillsTab';
 import DisciplineTab from '@/components/parent/child/DisciplineTab';
 import MarksTab from '@/components/parent/child/MarksTab';
 import OverviewTab from '@/components/parent/child/OverviewTab';
@@ -21,6 +22,7 @@ const TABS = [
   { value: 'discipline', label: 'Discipline' },
   { value: 'appeals', label: 'Appeals' },
   { value: 'teachers', label: 'Teachers & contacts' },
+  { value: 'bills', label: 'Bills' },
 ];
 
 export default function ChildPage() {
@@ -115,6 +117,9 @@ export default function ChildPage() {
           </Tabs.Panel>
           <Tabs.Panel value="teachers">
             <TeachersTab studentId={child.id} />
+          </Tabs.Panel>
+          <Tabs.Panel value="bills">
+            <BillsTab studentId={child.id} />
           </Tabs.Panel>
         </div>
       </Tabs>

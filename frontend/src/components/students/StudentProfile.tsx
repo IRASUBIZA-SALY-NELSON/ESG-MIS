@@ -138,6 +138,7 @@ const StudentProfile: FC<Props> = ({ currentStudent }) => {
                     <span
                       className={`px-2 py-1 rounded-full text-xs ${
                         data.person.studentStatus === 'CURRENT' ||
+                        data.person.studentStatus === 'ACTIVE' ||
                         data.person.studentStatus === 'CURRENT_REPEATED'
                           ? 'bg-green-100 text-green-800'
                           : data.person.studentStatus === 'ALUMNI'

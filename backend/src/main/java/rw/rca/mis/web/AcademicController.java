@@ -75,6 +75,11 @@ public class AcademicController {
     return ApiResponse.ok(academic.classes());
   }
 
+  @GetMapping("/classes/all/year/{yearId}")
+  public ApiResponse<?> classesForYear(@PathVariable UUID yearId) {
+    return ApiResponse.ok(academic.classesForYear(yearId));
+  }
+
   @PostMapping("/classes/create")
   public ApiResponse<?> createClass(@RequestBody Map<String, Object> body) {
     return ApiResponse.ok("Class created", academic.createClass(body));

@@ -9,6 +9,11 @@ import { AxiosRequestConfig } from 'axios';
 import { notifications } from '@mantine/notifications';
 import { getResError } from '@/utils/fetch';
 
+export type ImportTemplateColumn = {
+  header: string;
+  example?: string;
+};
+
 interface Props {
   onClose: () => void;
   renderPreview: (excelData: any) => React.ReactNode;
@@ -18,6 +23,12 @@ interface Props {
   notes?: string;
   exportComponent?: React.ReactNode;
   title?: string;
+  guide?: React.ReactNode;
+  columns?: ImportTemplateColumn[];
+  templateName?: string;
+  endpoint?: string;
+  sendJson?: boolean;
+  onImported?: (payload?: any) => void;
 }
 
 const ImportForm: FC<Props> = ({
@@ -29,6 +40,12 @@ const ImportForm: FC<Props> = ({
   notes,
   exportComponent,
   title,
+  guide,
+  columns,
+  templateName,
+  endpoint,
+  sendJson,
+  onImported,
 }) => {
   const [excelData, setExcelData] = useState<any>(null);
   const [file, setFile] = useState<any>();
@@ -58,27 +75,54 @@ const ImportForm: FC<Props> = ({
     }
   };
 
+  const downloadTemplate = () => {
+    if (!columns?.length) return;
+    const headers = columns.map((column) => column.header);
+    const example = columns.map((column) => column.example ?? '');
+    const workbook = XLSX.utils.book_new();
+    const sheet = XLSX.utils.aoa_to_sheet([headers, example]);
+    sheet['!cols'] = headers.map((header) => ({ wch: Math.max(14, header.length + 2) }));
+    XLSX.utils.book_append_sheet(workbook, sheet, 'Students');
+    XLSX.writeFile(workbook, templateName ?? `${portal}-import-template.xlsx`);
+  };
+
   const handlePreviewAndPost = () => {
-    const formData = new FormData();
-    formData.append('file', file);
     setIsPreviewOpen(false);
     setLoading(true);
-    AuthApi.post(`/importing/${portal}`, formData, postOpts)
-      .then((response) => {})
+    const url = endpoint ?? `/importing/${portal}`;
+    const request = sendJson
+      ? AuthApi.post(url, excelData)
+      : AuthApi.post(
+          url,
+          (() => {
+            const formData = new FormData();
+            formData.append('file', file);
+            return formData;
+          })(),
+          postOpts,
+        );
+    request
+      .then((response) => {
+        const payload = response.data?.data;
+        const created = payload?.created;
+        notifications.show({
+          title: 'Import finished',
+          message:
+            created != null
+              ? `Created ${created} student${created === 1 ? '' : 's'}${
+                  payload?.failed ? `, ${payload.failed} row(s) failed` : ''
+                }.`
+              : response.data?.message || 'Import received',
+          color: payload?.failed ? 'yellow' : 'green',
+        });
+        onImported?.(payload);
+      })
       .catch((error) => {
-        if (error.response.status === 400) {
-          notifications.show({
-            title: 'Error',
-            message: error.response.data.message,
-            color: 'red',
-          });
-        } else {
-          notifications.show({
-            title: 'Error',
-            message: '500:Internal server error',
-            color: 'red',
-          });
-        }
+        notifications.show({
+          title: 'Import failed',
+          message: getResError(error, 'Could not import the file'),
+          color: 'red',
+        });
       })
       .finally(() => {
         setLoading(false);
@@ -92,14 +136,23 @@ const ImportForm: FC<Props> = ({
   return (
     <div className=" w-full flex gap-y-3 items-start flex-col">
       <p className=" text-center font-semibold w-full">{title ?? 'Import data'}</p>
-      <FileButton onChange={handleFileChange} accept=".xlsx, .xls">
-        {(props) => (
-          <Button {...props} className=" w-fit mx-auto" color="green">
+      {guide}
+      <Flex gap={10} mx={'auto'} wrap="wrap" justify="center">
+        {columns?.length ? (
+          <Button variant="light" color="green" onClick={downloadTemplate}>
             <BsFileExcel className="mr-2" />
-            Select Excel to Import
+            Download Excel template
           </Button>
-        )}
-      </FileButton>
+        ) : null}
+        <FileButton onChange={handleFileChange} accept=".xlsx, .xls">
+          {(props) => (
+            <Button {...props} className=" w-fit" color="green">
+              <BsFileExcel className="mr-2" />
+              Select Excel to Import
+            </Button>
+          )}
+        </FileButton>
+      </Flex>
       {isPreviewOpen && excelData && renderPreview(excelData)}
       <Flex gap={10} mx={'auto'}>
         {isPreviewOpen && (

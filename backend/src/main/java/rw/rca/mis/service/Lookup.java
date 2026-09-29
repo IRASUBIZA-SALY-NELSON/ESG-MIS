@@ -79,6 +79,19 @@ public class Lookup {
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found"));
   }
 
+  public java.util.Optional<SchoolClass> classByCodeOrName(String value) {
+    if (value == null || value.isBlank()) {
+      return java.util.Optional.empty();
+    }
+    String needle = value.trim();
+    return classes.findAll().stream()
+        .filter(
+            schoolClass ->
+                needle.equalsIgnoreCase(schoolClass.getCode())
+                    || needle.equalsIgnoreCase(schoolClass.getClassName()))
+        .findFirst();
+  }
+
   public static String text(Map<String, Object> body, String... keys) {
     if (body == null) {
       return null;

@@ -7,6 +7,7 @@ import React, { useEffect } from 'react';
 import { BiArrowBack } from 'react-icons/bi';
 import { notifications } from '@mantine/notifications';
 import { SlRefresh } from 'react-icons/sl';
+import { getResError } from '@/utils/fetch';
 
 const ResetFormSteps = () => {
   const [step, setStep] = React.useState(0);
@@ -20,9 +21,20 @@ const ResetFormSteps = () => {
   const initiateReset = async () => {
     setLoading(true);
     try {
-      const res = await api.post(`/auth/initiate-reset-password?email=${email}`);
+      const { data } = await api.post(
+        `/auth/initiate-reset-password?email=${encodeURIComponent(email.trim())}`,
+      );
+      notifications.show({
+        title: 'Check your email',
+        message: data?.message ?? 'If an account uses this email, a reset code has been sent to it.',
+        color: 'green',
+      });
     } catch (error) {
-      console.log(error);
+      notifications.show({
+        title: 'Could not send the code',
+        message: getResError(error),
+        color: 'red',
+      });
     } finally {
       setLoading(false);
     }
@@ -36,21 +48,21 @@ const ResetFormSteps = () => {
     if (step === 1) {
       setLoading(true);
       try {
-        const { data } = await api.get(`/auth/verify-reset-code?code=${code}&email=${email}`);
+        await api.get(
+          `/auth/verify-reset-code?code=${encodeURIComponent(code)}&email=${encodeURIComponent(email.trim())}`,
+        );
         notifications.show({
           title: 'Code verified!',
-          message: 'Code has been verified ',
+          message: 'Now choose a new password.',
           color: 'green',
         });
       } catch (err: any) {
-        if (err.response.data.success == false) {
-          notifications.show({
-            title: 'Verification Failed',
-            message: err.response.data.message as string,
-            color: 'red',
-          });
-          return;
-        }
+        notifications.show({
+          title: 'Verification failed',
+          message: getResError(err),
+          color: 'red',
+        });
+        return;
       } finally {
         setLoading(false);
       }

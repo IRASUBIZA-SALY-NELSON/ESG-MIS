@@ -16,6 +16,8 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { FormEvent, useMemo, useState } from 'react';
+import DraftNotice from '@/components/core/DraftNotice';
+import { useStateDraft } from '@/hooks/useFormDraft';
 import { FiEdit2, FiLink, FiPlus, FiTrash2, FiX } from 'react-icons/fi';
 import { useParentData } from '../api';
 import { ParentAccount } from '../types';
@@ -57,6 +59,18 @@ export default function ParentsManager() {
   const [search, setSearch] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
+  const { savedAt, clear } = useStateDraft(
+    'parent-create',
+    form as unknown as Record<string, unknown>,
+    (extra) => {
+      setForm({
+        ...emptyForm,
+        ...extra,
+        password: '',
+        studentIds: Array.isArray(extra.studentIds) ? (extra.studentIds as string[]) : [],
+      });
+    },
+  );
   const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState<ParentAccount | null>(null);
   const [editForm, setEditForm] = useState({
@@ -110,6 +124,7 @@ export default function ParentsManager() {
       });
       setCreateOpen(false);
       setForm(emptyForm);
+      clear();
       parents.refresh();
     } catch (error) {
       notifyError('Could not create parent', error);
@@ -305,6 +320,15 @@ export default function ParentsManager() {
         size="lg"
       >
         <form onSubmit={create} className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="md:col-span-2">
+            <DraftNotice
+              savedAt={savedAt}
+              onDiscard={() => {
+                clear();
+                setForm(emptyForm);
+              }}
+            />
+          </div>
           <TextInput
             label="First name"
             required

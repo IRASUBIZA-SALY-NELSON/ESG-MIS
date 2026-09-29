@@ -1,10 +1,12 @@
-# Local logins export
+# Local logins export and secrets
 esg-credentials.json
+secrets.properties
 
 # Backend build output and local database / uploaded files
 backend/target/
 backend/data/
 backend/data-backup-*/
+backend/secrets.properties
 *.mv.db
 *.trace.db
 

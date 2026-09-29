@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -32,6 +33,7 @@ import rw.rca.mis.repo.TermRepository;
 
 /** Demo notes from several teachers, with realistic reach data for every student in the target classes. */
 @Component
+@Profile("!test")
 @Order(40)
 public class NotesDataSeeder implements CommandLineRunner {
   private static final Logger log = LoggerFactory.getLogger(NotesDataSeeder.class);

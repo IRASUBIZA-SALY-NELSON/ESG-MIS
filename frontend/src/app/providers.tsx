@@ -61,7 +61,7 @@ const Providers: FC<Props> = ({ children }) => {
           </div>
         }
       >
-        <DatesProvider settings={{ timezone: 'UTC' }}>
+        <DatesProvider settings={{ locale: 'en' }}>
           <AppProvider>
             <ThemeProvider>{children}</ThemeProvider>
           </AppProvider>

@@ -37,6 +37,12 @@ const librarianRoutes: SideBarRoute[] = [
     icon: FaUsers,
   },
   {
+    name: 'Lost-book bills',
+    path: '/librarian/bills',
+    icon: MdOutlineAssessment,
+    iconSize: 22,
+  },
+  {
     name: 'Reports & Analytics',
     path: '/librarian/reports',
     icon: MdOutlineAssessment,

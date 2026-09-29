@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
+import { useFormDraft, rwandaLocationExtras } from '@/hooks/useFormDraft';
+import DraftNotice from '@/components/core/DraftNotice';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { getCookie } from 'cookies-next';
 import { AuthApi, backend } from '@/utils/constants';
@@ -38,13 +40,34 @@ const NewAccountant = () => {
     country: yup.string().required('Please provide the country for the accountant'),
     password: yup.string().required('Please provide the password'),
   });
+  const form = useForm({
+    resolver: yupResolver(schema),
+  });
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
-  } = useForm({
-    resolver: yupResolver(schema),
-  });
+  } = form;
+  const { savedAt, clear } = useFormDraft(
+    form,
+    rwandaLocationExtras(
+      {
+        selectedProvince,
+        selectedDistrict,
+        selectedSector,
+        selectedCell,
+        selectedVillage,
+      },
+      {
+        selectedProvince: setSelectedProvince,
+        selectedDistrict: setSelectedDistrict,
+        selectedSector: setSelectedSector,
+        selectedCell: setSelectedCell,
+        selectedVillage: setSelectedVillage,
+      },
+    ),
+  );
   const handleFilesSelected = (filetype: string, files: File[]) => {
     setSelectedFile(files[0]);
   };
@@ -82,6 +105,7 @@ const NewAccountant = () => {
     };
     AuthApi.post(`/staff-members/create`, newAccountant)
       .then((res) => {
+        clear();
         toast.success('Accountant Registered');
         window.history.back();
       })
@@ -108,6 +132,13 @@ const NewAccountant = () => {
         </h2>
       </div>
       <p className="text-[rgba(67,67,67,0.43)] my-2 capitalize">Add a new Accountant</p>
+      <DraftNotice
+        savedAt={savedAt}
+        onDiscard={() => {
+          clear();
+          reset();
+        }}
+      />
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-y-3">
         <Fieldset
           legend={<span className="font-semibold text-mainPurple">Personal information</span>}

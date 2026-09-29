@@ -3,6 +3,24 @@ server:
   address: 0.0.0.0
 
 spring:
+  config:
+    # Mail credentials live outside git; see secrets.properties.example.
+    import: optional:file:./secrets.properties
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
   datasource:
     url: jdbc:h2:file:./data/esg_mis;MODE=PostgreSQL;AUTO_SERVER=TRUE
     driver-class-name: org.h2.Driver
@@ -31,5 +49,7 @@ app:
   jwt:
     secret: esg-mis-dev-jwt-secret-key-change-me-32b
     expiration-ms: 86400000
+  mail:
+    from-name: Ecole des Sciences de Gisenyi
   cors:
     origins: http://localhost:5443,http://127.0.0.1:5443,http://192.168.0.115:5443

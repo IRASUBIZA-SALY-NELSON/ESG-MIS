@@ -75,8 +75,8 @@ const StatusUpdateModal = ({
       reason: '',
     },
     validate: {
-      newStatus: (value) => (!value ? 'Status is required' : null),
-      reason: (value, values) =>
+      newStatus: (value: string) => (!value ? 'Status is required' : null),
+      reason: (value: string, values: { newStatus: string; reason: string }) =>
         ['DROPOUT', 'RELOCATED'].includes(values.newStatus) && !value
           ? 'Reason is required for this status'
           : null,
@@ -129,7 +129,7 @@ const StatusUpdateModal = ({
       size="md"
     >
       <Box pos="relative">
-        <LoadingOverlay visible={isSubmitting} overlayBlur={2} />
+        <LoadingOverlay visible={isSubmitting} />
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Select
             label="New Status"
@@ -150,7 +150,7 @@ const StatusUpdateModal = ({
             />
           )}
 
-          <Group position="right" mt="xl">
+          <Group justify="flex-end" mt="xl">
             <Button variant="default" onClick={onClose} disabled={isSubmitting}>
               Cancel
             </Button>
@@ -282,9 +282,6 @@ const Page = () => {
       searchQuery,
     },
   });
-  students?.map((student) => {
-    console.log('student : ', student.statusChanges);
-  });
   useEffect(() => {
     if (academicYears)
       setSelectedFilters((prev) => ({
@@ -294,13 +291,6 @@ const Page = () => {
   }, [academicYears]);
 
   useEffect(() => {
-    const searchParams = {
-      academicYearId: selectedFilters.academicYear,
-      classId: selectedFilters.classId,
-      termId: selectedFilters.term,
-      searchQuery,
-    };
-    console.log('Search parameters being sent:', searchParams);
     getPaginated();
   }, [selectedFilters, searchQuery]);
 

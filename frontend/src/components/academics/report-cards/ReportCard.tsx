@@ -487,12 +487,16 @@ export default ({
                         </Text>
                         <Text style={[headerTextTw, tw('text-center border-l w-full py-1')]}>
                           {isYearReleased &&
-                            (
-                              (
-                                info.reportCard.SECOND_SITTING?.[course]?.[0]?.marks /
-                                info.reportCard.SECOND_SITTING?.[course]?.[0]?.weight
-                              )?.toFixed(1) * 100
-                            ).toFixed(1)}
+                            (() => {
+                              const marks = Number(
+                                info.reportCard.SECOND_SITTING?.[course]?.[0]?.marks ?? 0,
+                              );
+                              const weight = Number(
+                                info.reportCard.SECOND_SITTING?.[course]?.[0]?.weight ?? 0,
+                              );
+                              if (!weight) return '';
+                              return ((marks / weight) * 100).toFixed(1);
+                            })()}
                         </Text>
                         {/* <Text
                           style={[

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rw.rca.mis.common.ApiResponse;
+import rw.rca.mis.finance.FinanceService;
 import rw.rca.mis.service.ParentPortalService;
 
 /** Endpoints for logged-in parents. Every child endpoint checks the parent-student link. */
@@ -18,9 +19,16 @@ import rw.rca.mis.service.ParentPortalService;
 @RequestMapping("/api/v1/parent-portal")
 public class ParentPortalController {
   private final ParentPortalService portal;
+  private final FinanceService finance;
 
-  public ParentPortalController(ParentPortalService portal) {
+  public ParentPortalController(ParentPortalService portal, FinanceService finance) {
     this.portal = portal;
+    this.finance = finance;
+  }
+
+  @GetMapping("/children/{studentId}/bills")
+  public ApiResponse<?> bills(@PathVariable UUID studentId) {
+    return ApiResponse.ok(finance.childAccount(studentId));
   }
 
   @GetMapping("/children")

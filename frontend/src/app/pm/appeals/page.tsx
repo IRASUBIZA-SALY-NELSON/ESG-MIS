@@ -302,7 +302,7 @@ export default function AppealsPage() {
             </DropdownTrigger>
             <DropdownMenu className="rounded-lg overflow-y-auto">
               {tLoader ? (
-                <DropdownItem className="flex w-full justify-center">
+                <DropdownItem key="loading" className="flex w-full justify-center">
                   <h5 className="w-full flex justify-center mx-auto">
                     <ClipLoader size={20} className="mx-auto" />
                   </h5>

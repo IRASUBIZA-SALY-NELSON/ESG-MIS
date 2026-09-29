@@ -8,6 +8,8 @@ import { AuthApi } from '@/utils/constants';
 import { notifications } from '@mantine/notifications';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
+import { useFormDraft, loadDraft } from '@/hooks/useFormDraft';
+import DraftNotice from '@/components/core/DraftNotice';
 import * as yup from 'yup';
 import { getCookie } from 'cookies-next';
 import { useParams, useRouter } from 'next/navigation';
@@ -56,13 +58,36 @@ const Edit = () => {
     motherPhone: yup.string().optional(),
     guardianPhone: yup.string().optional(),
   });
+  const form = useForm({
+    resolver: yupResolver(schema),
+  });
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
-  } = useForm({
-    resolver: yupResolver(schema),
-  });
+  } = form;
+  const draftKey = `/admin/students/edit/${id}`;
+  const { savedAt, clear } = useFormDraft(form, null, { key: draftKey });
+  useEffect(() => {
+    if (!student) return;
+    const draft = loadDraft(draftKey);
+    reset({
+      firstName: student.firstName,
+      lastName: student.lastName,
+      email: student.email,
+      gender: student.gender,
+      nationalId: student.nationalId,
+      phone: student.phoneNumber,
+      country: student.address?.country,
+      province: student.address?.province,
+      district: student.address?.district,
+      sector: student.address?.sector,
+      cell: student.address?.cell,
+      village: student.address?.village,
+      ...(draft?.fields ?? {}),
+    });
+  }, [student]);
   const handleFilesSelected = (filetype: string, files: File[]) => {
     setSelectedFile(files[0]);
   };
@@ -109,6 +134,7 @@ const Edit = () => {
           autoClose: 3000,
         });
         router.push('/admin/students');
+        clear();
       })
       .catch((err) => {
         notifications.show({
@@ -134,6 +160,22 @@ const Edit = () => {
         </button>
         <h2 className="text-[17px] font-medium  text-[rgba(0,0,0,0.7)] my-2">Edit Student</h2>
       </div>
+      <DraftNotice
+        savedAt={savedAt}
+        onDiscard={() => {
+          clear();
+          if (student) {
+            reset({
+              firstName: student.firstName,
+              lastName: student.lastName,
+              email: student.email,
+              gender: student.gender,
+              nationalId: student.nationalId,
+              phone: student.phoneNumber,
+            });
+          }
+        }}
+      />
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="mt-10 mb-5  grid grid-cols-1 sm:grid-cols-2 gap-5">
           {pageLoading ? (

@@ -35,9 +35,10 @@ const ViewAssignedCourses = ({ onClose, toUpdate }: Props) => {
 
   useEffect(() => {
     if (academicYears.length > 0 && !acadYear) {
-      const acadYear = getCurrentYear(academicYears, true);
-
-      setAcadYear(acadYear.id);
+      const currentYear = getCurrentYear(academicYears, true);
+      if (currentYear) {
+        setAcadYear(currentYear.id);
+      }
     }
     if (terms.length > 0 && !term) {
       setTerm(getCurrentTerm(terms, true)?.id);

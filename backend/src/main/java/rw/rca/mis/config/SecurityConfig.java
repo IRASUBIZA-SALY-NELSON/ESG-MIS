@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -23,12 +24,14 @@ public class SecurityConfig {
   private static final String[] SCHOOL_ROLES = {"ADMIN", "PM", "DOS", "TEACHER", "DS", "ACCOUNTANT", "STUDENT", "STAFF"};
 
   private final JwtAuthFilter jwtAuthFilter;
+  private final AuditFilter auditFilter;
 
   @Value("${app.cors.origins}")
   private String origins;
 
-  public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
+  public SecurityConfig(JwtAuthFilter jwtAuthFilter, AuditFilter auditFilter) {
     this.jwtAuthFilter = jwtAuthFilter;
+    this.auditFilter = auditFilter;
   }
 
   @Bean
@@ -56,8 +59,16 @@ public class SecurityConfig {
                     .permitAll()
                     .requestMatchers("/api/v1/parent-portal/**")
                     .hasRole("PARENT")
+                    .requestMatchers("/api/v1/finance/me", "/api/v1/finance/me/**")
+                    .hasRole("STUDENT")
+                    .requestMatchers(HttpMethod.GET, "/api/v1/finance/**")
+                    .hasAnyRole("ACCOUNTANT", "PM", "ADMIN")
+                    .requestMatchers("/api/v1/finance/**")
+                    .hasRole("ACCOUNTANT")
                     .requestMatchers("/api/v1/library/me", "/api/v1/library/me/**")
                     .hasAnyRole("STUDENT", "TEACHER", "STAFF", "LIBRARIAN")
+                    .requestMatchers("/api/v1/library/bills/**")
+                    .hasAnyRole("LIBRARIAN", "ADMIN")
                     .requestMatchers("/api/v1/library/**")
                     .hasAnyRole("LIBRARIAN", "ADMIN")
                     .requestMatchers("/api/v1/notes/me", "/api/v1/notes/me/**")
@@ -70,13 +81,24 @@ public class SecurityConfig {
                     .denyAll()
                     .requestMatchers("/api/v1/parents/**")
                     .hasAnyRole("ADMIN", "PM", "DOS")
+                    .requestMatchers("/api/v1/audit", "/api/v1/audit/**")
+                    .hasRole("ADMIN")
                     .requestMatchers("/api/v1/auth/profile", "/api/v1/auth/profile/**", "/api/v1/auth/change-password")
                     .authenticated()
                     // Parents are deliberately excluded: they only see their own children via /parent-portal.
                     .anyRequest()
                     .hasAnyRole(SCHOOL_ROLES))
-        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+        .addFilterBefore(auditFilter, JwtAuthFilter.class);
     return http.build();
+  }
+
+  /** Keep the audit filter inside Spring Security only, so it does not run twice. */
+  @Bean
+  FilterRegistrationBean<AuditFilter> auditFilterRegistration(AuditFilter filter) {
+    FilterRegistrationBean<AuditFilter> registration = new FilterRegistrationBean<>(filter);
+    registration.setEnabled(false);
+    return registration;
   }
 
   @Bean

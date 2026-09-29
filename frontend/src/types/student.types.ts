@@ -13,6 +13,7 @@ interface Address {
 
 export interface Student extends IUser {
   currentClass: IClass;
+  currentClazz?: IClass;
   studentStatus?: string;
   statusChanges?: any;
   classes: IClass[];

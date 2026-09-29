@@ -108,7 +108,10 @@ const DeductClass: React.FC<Props> = ({ onCancel, refetch }) => {
           maxDate={new Date()}
           onChange={(e) => {
             // register('createdAt').onChange({ target: { value: e?.toISOString() } });
-            setData({ ...data, createdAt: e?.toISOString() ?? '' });
+            setData({
+              ...data,
+              createdAt: e ? new Date(e).toISOString() : '',
+            });
           }}
         />
         <div className="flex justify-between items-center my-2">

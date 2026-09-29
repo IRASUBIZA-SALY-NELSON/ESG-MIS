@@ -1,5 +1,5 @@
 'use client';
-import ViewCourseMarks from '@/components/academics/marks/ ViewCourseMarks';
+import ViewCourseMarks from '@/components/academics/marks/ViewCourseMarks';
 import MainModal from '@/components/core/modals/modal';
 import { useUserContext } from '@/context/Usercontext';
 import useGet from '@/hooks/useGet';

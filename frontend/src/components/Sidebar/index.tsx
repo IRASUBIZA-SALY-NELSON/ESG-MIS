@@ -46,10 +46,11 @@ const Sidebar: FC<SideBarProps> = ({ routes }) => {
         </p>
         <div className="">
           {routes.map((route, i) => {
+            const key = `${route.path || 'group'}:${route.name}:${i}`;
             if (route.hasSubRoutes && route.routes)
               return (
                 <WithSubRoutes
-                  key={route.name}
+                  key={key}
                   route={route}
                   path={path}
                   opened={opened}
@@ -58,7 +59,7 @@ const Sidebar: FC<SideBarProps> = ({ routes }) => {
               );
             return (
               <Link
-                key={route.name}
+                key={key}
                 href={route.path}
                 className={
                   isActiveLink(route.path, i)
@@ -85,7 +86,7 @@ const WithSubRoutes: FC<{ route: SideBarRoute; path: string; opened: string; set
 }) => {
   const isActiveLink = (linkPath: string) => path.startsWith(linkPath);
   return (
-    <div key={route.name} className=" w-full flex flex-col">
+    <div className=" w-full flex flex-col">
       <button
         className={
           // ? 'flex flex-row gap-5 items-center p-3 rounded-lg bg-primary/20 text-primary my-2'
@@ -104,7 +105,7 @@ const WithSubRoutes: FC<{ route: SideBarRoute; path: string; opened: string; set
         <div className="flex flex-col w-full pl-4">
           {route.routes?.map((subRoute) => (
             <Link
-              key={subRoute.name}
+              key={subRoute.path || subRoute.name}
               href={subRoute.path}
               className={
                 isActiveLink(subRoute.path)

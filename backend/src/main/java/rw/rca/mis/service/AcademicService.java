@@ -107,6 +107,12 @@ public class AcademicService {
     return all;
   }
 
+  /** Classes are shared across the year. The year id is checked so a bad filter fails clearly. */
+  public List<SchoolClass> classesForYear(UUID yearId) {
+    lookup.year(yearId);
+    return classes();
+  }
+
   @Transactional
   public SchoolClass createClass(Map<String, Object> body) {
     SchoolClass schoolClass = new SchoolClass();

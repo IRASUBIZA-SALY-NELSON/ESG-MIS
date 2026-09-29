@@ -4,6 +4,8 @@ import ProfileInput from '../ProfileInput';
 import { useRouter } from 'next/navigation';
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
+import { useFormDraft } from '@/hooks/useFormDraft';
+import DraftNotice from '@/components/core/DraftNotice';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { getCookie } from 'cookies-next';
 import axios from 'axios';
@@ -35,13 +37,16 @@ const NewStudent = () => {
     motherPhone: yup.string().optional(),
     guardianPhone: yup.string().optional(),
   });
+  const form = useForm({
+    resolver: yupResolver(schema),
+  });
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
-  } = useForm({
-    resolver: yupResolver(schema),
-  });
+  } = form;
+  const { savedAt, clear } = useFormDraft(form);
   const handleFilesSelected = (filetype: string, files: File[]) => {
     setSelectedFile(files[0]);
   };
@@ -76,6 +81,7 @@ const NewStudent = () => {
         },
       })
       .then((res) => {
+        clear();
         toast.success('Student Registered');
         router.push('/staff/students');
       })
@@ -90,6 +96,13 @@ const NewStudent = () => {
     <div className="w-full h-full overflow-y-auto overflow-x-hidden p-2 text-sm">
       <h2 className="text-[17px] font-medium  text-[rgba(0,0,0,0.7)] my-2">Register New Student</h2>
       <p className="text-[rgba(67,67,67,0.43)] my-2 capitalize">Add a new Student to the School</p>
+      <DraftNotice
+        savedAt={savedAt}
+        onDiscard={() => {
+          clear();
+          reset();
+        }}
+      />
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="my-10 grid grid-cols-2 gap-5">
           <ProfileInput />

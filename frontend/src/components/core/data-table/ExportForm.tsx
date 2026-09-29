@@ -8,7 +8,7 @@ import {
   BsFilePdf,
   BsReverseListColumnsReverse,
 } from 'react-icons/bs';
-import { DatePicker } from '@mantine/dates';
+import { DatePicker, DatesRangeValue } from '@mantine/dates';
 import { exportToExcel } from '@/utils/funcs';
 
 interface Props {
@@ -23,6 +23,29 @@ interface Props {
   tableName?: string;
 }
 
+const tabStyle = {
+  width: '100%',
+  justifyContent: 'center',
+  whiteSpace: 'nowrap' as const,
+};
+
+function cleanFileName(name: string) {
+  return name.replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+/** Prefer an explicit name. Otherwise use the page heading, not the generic "Tables". */
+function exportFileName(tableName?: string, title?: string) {
+  const given = cleanFileName(tableName || title || '');
+  if (given && given.toLowerCase() !== 'tables') return given;
+  if (typeof document !== 'undefined') {
+    const heading = [...document.querySelectorAll('h1, h2')]
+      .map((el) => cleanFileName(el.textContent || ''))
+      .find((text) => text && !/^export\b/i.test(text) && text.length < 60);
+    if (heading) return heading;
+  }
+  return 'ESG export';
+}
+
 const ExportForm: FC<Props> = ({
   appliedFilter,
   title,
@@ -33,23 +56,39 @@ const ExportForm: FC<Props> = ({
   tableName,
 }) => {
   const filteredData = isFiltered ? appliedFilter : data;
-  const [date, setDate] = useState<Date | null>(null);
-  const [range, setRange] = useState<[Date | null, Date | null]>([null, null]);
+  const [date, setDate] = useState<string | null>(null);
+  const [range, setRange] = useState<DatesRangeValue>([null, null]);
+  const fileName = exportFileName(tableName, title);
+  const saveExcel = (rows: any) => {
+    exportToExcel(
+      fileName,
+      rows,
+      '.xlsx',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
+    );
+  };
   return (
     <div className=" w-full flex gap-y-3 flex-col">
       <p className=" text-center font-semibold text-sm">Select What To Export</p>
       <Tabs defaultValue="table">
-        <Tabs.List>
-          <Tabs.Tab className=" w-1/4" value="table" leftSection={<BiTable />}>
+        <Tabs.List
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: 6,
+            flexWrap: 'wrap',
+          }}
+        >
+          <Tabs.Tab value="table" leftSection={<BiTable />} style={tabStyle}>
             Current Table
           </Tabs.Tab>
-          <Tabs.Tab className=" w-1/4" value="all" leftSection={<BsReverseListColumnsReverse />}>
+          <Tabs.Tab value="all" leftSection={<BsReverseListColumnsReverse />} style={tabStyle}>
             All Data
           </Tabs.Tab>
-          <Tabs.Tab className=" w-1/4" value="date" leftSection={<BsCalendar2 />}>
+          <Tabs.Tab value="date" leftSection={<BsCalendar2 />} style={tabStyle}>
             Select Date
           </Tabs.Tab>
-          <Tabs.Tab className=" w-1/4" value="range" leftSection={<BsCalendar2RangeFill />}>
+          <Tabs.Tab value="range" leftSection={<BsCalendar2RangeFill />} style={tabStyle}>
             Select Range
           </Tabs.Tab>
         </Tabs.List>
@@ -88,14 +127,7 @@ const ExportForm: FC<Props> = ({
               <Button
                 className="flex items-center"
                 color="green"
-                onClick={() => {
-                  exportToExcel(
-                    tableName ?? 'Tables',
-                    filteredData,
-                    '.xlsx',
-                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
-                  );
-                }}
+                onClick={() => saveExcel(filteredData)}
               >
                 <BsFileExcel className="mr-2" />
                 Export Excel
@@ -116,14 +148,7 @@ const ExportForm: FC<Props> = ({
               <Button
                 className="flex items-center"
                 color="green"
-                onClick={() => {
-                  exportToExcel(
-                    'Tables',
-                    data,
-                    '.xlsx',
-                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
-                  );
-                }}
+                onClick={() => saveExcel(data)}
               >
                 <BsFileExcel className="mr-2" />
                 Export Excel
@@ -146,14 +171,7 @@ const ExportForm: FC<Props> = ({
               <Button
                 className="flex items-center"
                 color="green"
-                onClick={() => {
-                  exportToExcel(
-                    'Tables',
-                    data,
-                    '.xlsx',
-                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
-                  );
-                }}
+                onClick={() => saveExcel(data)}
               >
                 <BsFileExcel className="mr-2" />
                 Export Excel

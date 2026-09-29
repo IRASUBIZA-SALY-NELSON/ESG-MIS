@@ -103,7 +103,16 @@ export const getGrade = (percentage: number) => {
   }
 };
 
-export const getSittingStatus = (percentage: number) => {
+export const getSittingStatus = (
+  percentage: number,
+):
+  | 'PROMOTED'
+  | 'SITTING'
+  | 'REPEATING'
+  | 'SECOND_SITTING_PROMOTED'
+  | 'SECOND_SITTING_REPEAT'
+  | 'SECOND_SITTING_EXCLUDED'
+  | '' => {
   switch (true) {
     case percentage >= 60:
       return 'PROMOTED';

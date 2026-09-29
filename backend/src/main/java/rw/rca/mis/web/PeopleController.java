@@ -53,9 +53,26 @@ public class PeopleController {
     return ApiResponse.ok(people.get(id));
   }
 
+  @GetMapping("/students/profile-id/{id}")
+  public ApiResponse<?> studentProfile(@PathVariable UUID id) {
+    return ApiResponse.ok(people.studentProfile(id));
+  }
+
   @PostMapping("/students/create")
   public ApiResponse<?> createStudent(@RequestBody Map<String, Object> body) {
     return ApiResponse.ok("Student created", people.create("STUDENT", body));
+  }
+
+  @PostMapping("/students/import")
+  public ApiResponse<?> importStudents(@RequestBody List<Map<String, Object>> rows) {
+    Map<String, Object> result = people.importStudents(rows);
+    int created = ((Number) result.get("created")).intValue();
+    int failed = ((Number) result.get("failed")).intValue();
+    String message =
+        created == 0 && failed > 0
+            ? "No students imported"
+            : "Imported " + created + " student" + (created == 1 ? "" : "s");
+    return ApiResponse.ok(message, result);
   }
 
   @PutMapping({"/students/update/{id}", "/users/update/{id}"})

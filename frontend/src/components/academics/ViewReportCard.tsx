@@ -145,7 +145,7 @@ const ViewReportCard: FC<Props> = ({
             viewAll={viewAll}
             info={reportCardInfo!}
             terms={terms!}
-            dsMarks={dsMarks}
+            dsMarks={dsMarks ?? undefined}
             isPM={isPM}
             studentClassTermData={studentClassTermData}
           />,

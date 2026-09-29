@@ -3,7 +3,7 @@ import { IAcademicYear } from '@/types/other.type';
 import { AuthApi } from '@/utils/constants';
 import { getResError } from '@/utils/fetch';
 import { Button } from '@mantine/core';
-import { YearPicker } from '@mantine/dates';
+import { YearPicker, DatesRangeValue } from '@mantine/dates';
 import { notifications } from '@mantine/notifications';
 import React, { FC, useEffect, useState } from 'react';
 import { BiCheck } from 'react-icons/bi';
@@ -29,33 +29,32 @@ const NewUpdateAcadYear: FC<Props> = ({ refetch, onClose, isEdit, data: toUpdate
     startYear: toUpdate?.startYear ?? '',
     endYear: toUpdate?.endYear ?? '',
   });
-  const [range, setRange] = useState<[Date | null, Date | null]>([
-    toUpdate?.startYear ? new Date(Number(toUpdate.startYear), 0) : null,
-    toUpdate?.endYear ? new Date(Number(toUpdate.endYear), 0) : null,
+  const [range, setRange] = useState<DatesRangeValue>([
+    toUpdate?.startYear ? String(toUpdate.startYear) : null,
+    toUpdate?.endYear ? String(toUpdate.endYear) : null,
   ]);
 
-  const handleRangeChange = (value: [Date | null, Date | null] | null) => {
-    if (value) {
-      setRange(value);
-
-      console.log(value);
-      // Immediately update data when range changes
-      const startYear = value[0] instanceof Date ? String(value[0].getFullYear()) : '';
-      const endYear = value[1] instanceof Date ? String(value[1].getFullYear()) : '';
-
-      setData((prevData) => ({
-        ...prevData,
-        startYear,
-        endYear,
-      }));
-    } else {
-      setRange([null, null]);
-      setData((prevData) => ({
-        ...prevData,
-        startYear: '',
-        endYear: '',
-      }));
-    }
+  const handleRangeChange = (value: DatesRangeValue | [string | Date | null, string | Date | null] | null) => {
+    const start = value?.[0] ?? null;
+    const end = value?.[1] ?? null;
+    setRange([start as DatesRangeValue[0], end as DatesRangeValue[1]]);
+    const yearOf = (raw: string | Date | null) => {
+      if (!raw) return '';
+      if (raw instanceof Date) {
+        return String(raw.getFullYear());
+      }
+      const asNumber = Number(raw);
+      if (!Number.isNaN(asNumber) && asNumber > 1900 && asNumber < 3000) {
+        return String(asNumber);
+      }
+      const parsed = new Date(raw);
+      return Number.isNaN(parsed.getTime()) ? '' : String(parsed.getFullYear());
+    };
+    setData((prevData) => ({
+      ...prevData,
+      startYear: yearOf(start),
+      endYear: yearOf(end),
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

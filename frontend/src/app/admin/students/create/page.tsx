@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { getCookie } from 'cookies-next';
+import { getResError } from '@/utils/fetch';
 import { AuthApi } from '@/utils/constants';
 import Image from 'next/image';
 import backBtn from '../../../../assets/back.svg';
@@ -13,6 +13,8 @@ import { Fieldset } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { ClipLoader } from 'react-spinners';
 import CustomTextInput from '@/components/core/Input/CustomTextInput';
+import DraftNotice from '@/components/core/DraftNotice';
+import { rwandaLocationExtras, useFormDraft } from '@/hooks/useFormDraft';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { Provinces, Districts, Sectors, Cells, Villages } = require('rwanda');
 
@@ -50,78 +52,88 @@ const NewStudent = () => {
     motherNationalId: yup.string().optional(),
     guardianNationalId: yup.string().optional(),
   });
+  const form = useForm({
+    resolver: yupResolver(schema),
+  });
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
-  } = useForm({
-    resolver: yupResolver(schema),
-  });
+  } = form;
+  const { savedAt, clear } = useFormDraft(
+    form,
+    rwandaLocationExtras(
+      {
+        selectedProvince,
+        selectedDistrict,
+        selectedSector,
+        selectedCell,
+        selectedVillage,
+      },
+      {
+        selectedProvince: setSelectedProvince,
+        selectedDistrict: setSelectedDistrict,
+        selectedSector: setSelectedSector,
+        selectedCell: setSelectedCell,
+        selectedVillage: setSelectedVillage,
+      },
+    ),
+  );
 
   const onSubmit = async (data: any) => {
     setLoading(true);
+    const parent = (
+      name?: string,
+      email?: string,
+      phone?: string,
+      nationalId?: string,
+      extra?: Record<string, string | undefined>,
+    ) => {
+      if (!name && !email) return undefined;
+      return {
+        fullName: name || undefined,
+        email: email || undefined,
+        phoneNumber: phone || undefined,
+        nationalId: nationalId || undefined,
+        ...extra,
+      };
+    };
+    const body = {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      gender: data.gender,
+      phoneNumber: data.phone || undefined,
+      nationalId: data.nationalId || undefined,
+      username: data.email,
+      father: parent(data.fatherName, data.fatherEmail, data.fatherPhone, data.fatherNationalId),
+      mother: parent(data.motherName, data.motherEmail, data.motherPhone, data.motherNationalId),
+      guardian: parent(data.guardianName, data.guardianEmail, data.guardianPhone, data.guardianNationalId, {
+        gender: data.guardianGender,
+      }),
+    };
 
-    const formData = new FormData();
-    formData.append('addressDTO.cell', selectedCell);
-    formData.append('addressDTO.country', data.country);
-    formData.append('addressDTO.district', selectedDistrict);
-    formData.append('addressDTO.province', selectedProvince);
-    formData.append('addressDTO.sector', selectedSector);
-    formData.append('addressDTO.village', selectedVillage);
-    // father
-    formData.append('createParentsDTO.father.email', data.fatherEmail);
-    formData.append('createParentsDTO.father.fullName', data.fatherName);
-    formData.append('createParentsDTO.father.nationalId', data.fatherNationalId);
-    formData.append('createParentsDTO.father.phoneNumber', data.fatherPhone);
-    formData.append('createParentsDTO.father.gender', 'MALE');
-    formData.append('createParentsDTO.father.parentType', 'FATHER');
-    // mother
-    formData.append('createParentsDTO.mother.email', data.motherEmail);
-    formData.append('createParentsDTO.mother.fullName', data.motherName);
-    formData.append('createParentsDTO.mother.nationalId', data.motherNationalId);
-    formData.append('createParentsDTO.mother.phoneNumber', data.motherPhone);
-    formData.append('createParentsDTO.mother.gender', 'FEMALE');
-    formData.append('createParentsDTO.mother.parentType', 'MOTHER');
-    // guardian
-    formData.append('createParentsDTO.guardian.email', data.guardianEmail);
-    formData.append('createParentsDTO.guardian.fullName', data.guardianName);
-    formData.append('createParentsDTO.guardian.nationalId', data.guardianNationalId);
-    formData.append('createParentsDTO.guardian.phoneNumber', data.guardianPhone);
-    formData.append('createParentsDTO.guardian.gender', data.guardianGender);
-    formData.append('createParentsDTO.guardian.parentType', 'GUARDIAN');
-    //personal info
-    formData.append('email', data.email);
-    formData.append('firstName', data.firstName);
-    formData.append('lastName', data.lastName);
-    formData.append('gender', data.gender);
-    formData.append('nationalId', data.nationalId);
-    formData.append('phoneNumber', data.phone);
-    formData.append('username', `${data.firstName}${Math.floor(100 + Math.random() * 900)}`);
-    if (selectedFile) {
-      formData.append('profile', selectedFile);
-    }
-
-    AuthApi.post(`/students/create`, formData)
-      .then((res) => {
-        notifications.show({
-          title: 'Success',
-          message: res.data?.message,
-          color: 'green',
-          autoClose: 3000,
-        });
-        router.push('/admin/students');
-      })
-      .catch((err) => {
-        notifications.show({
-          title: 'Failed to Create Student',
-          message: err.message,
-          color: 'red',
-          autoClose: 3000,
-        });
-      })
-      .finally(() => {
-        setLoading(false);
+    try {
+      const res = await AuthApi.post(`/students/create`, body);
+      notifications.show({
+        title: 'Success',
+        message: res.data?.message,
+        color: 'green',
+        autoClose: 3000,
       });
+      clear();
+      router.push('/admin/students');
+    } catch (err) {
+      notifications.show({
+        title: 'Failed to Create Student',
+        message: getResError(err, 'Could not create the student'),
+        color: 'red',
+        autoClose: 5000,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <div className="w-full h-full overflow-y-auto overflow-x-hidden p-2 text-sm">
@@ -138,6 +150,18 @@ const NewStudent = () => {
         </h2>
       </div>
       <p className="text-[rgba(67,67,67,0.43)] my-2 capitalize">Add a new Student to the School</p>
+      <DraftNotice
+        savedAt={savedAt}
+        onDiscard={() => {
+          clear();
+          reset();
+          setSelectedProvince('');
+          setSelectedDistrict('');
+          setSelectedSector('');
+          setSelectedCell('');
+          setSelectedVillage('');
+        }}
+      />
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-y-3">
         <Fieldset
           legend={<span className="font-semibold text-mainPurple">Personal information</span>}
@@ -445,11 +469,12 @@ const NewStudent = () => {
               <ClipLoader size={15} color="white" />
             </div>
           ) : (
-            <input
+            <button
               type="submit"
-              value={'Register Student '}
               className="bg-primary rounded-md text-white px-5 py-2 cursor-pointer"
-            />
+            >
+              Register Student
+            </button>
           )}
         </div>
       </form>

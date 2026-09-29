@@ -8,6 +8,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
@@ -18,7 +19,9 @@ import rw.rca.mis.common.BaseEntity;
 @Setter
 @Entity
 @Table(name = "people")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "password"})
+@JsonIgnoreProperties({
+  "hibernateLazyInitializer", "handler", "password", "resetCodeHash", "resetCodeExpiresAt", "resetAttempts"
+})
 public class Person extends BaseEntity {
   private String firstName;
   private String lastName;
@@ -30,6 +33,15 @@ public class Person extends BaseEntity {
 
   @JsonIgnore
   private String password;
+
+  @JsonIgnore
+  private String resetCodeHash;
+
+  @JsonIgnore
+  private Instant resetCodeExpiresAt;
+
+  @JsonIgnore
+  private Integer resetAttempts;
 
   private String gender = "MALE";
   private String status = "ACTIVE";

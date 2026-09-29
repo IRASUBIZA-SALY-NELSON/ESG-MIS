@@ -86,7 +86,7 @@ const AssignTeacherCourse: FC<Props> = ({ onClose, data: toUpdate, refetch }) =>
   useEffect(() => {
     const classList = courses?.map((course) => course.myClazz?.id);
     if (!classList) return;
-    setClassIdArray(classList);
+    setClassIdArray(classList.filter((id): id is string => Boolean(id)));
   }, [courses]);
 
   return (

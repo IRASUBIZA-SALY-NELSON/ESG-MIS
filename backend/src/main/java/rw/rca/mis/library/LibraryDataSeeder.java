@@ -8,6 +8,7 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,7 @@ import rw.rca.mis.repo.PersonRepository;
  * and twelve months of loan history (returned, late, lost, active, overdue and due-soon loans).
  */
 @Component
+@Profile("!test")
 @Order(30)
 public class LibraryDataSeeder implements CommandLineRunner {
   public static final String LIBRARIAN_EMAIL = "librarian" + DataSeeder.DOMAIN;

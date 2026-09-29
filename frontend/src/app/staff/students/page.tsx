@@ -6,11 +6,13 @@ import TableSkeleton from '@/components/core/data-table/TableSkeleton';
 import SortButton from '@/components/core/data-table/sort-button';
 import { DarkEye, DeleteIcon, EditIcon } from '@/components/core/icons/icons1';
 import MainModal from '@/components/core/modals/modal';
-import PreviewDsExcel from '@/components/staff/ds/ExcelImportPreviewer';
 import AssignStudentClass from '@/components/students/AssignStudentClass';
 import AssignStudentRole from '@/components/students/AssignStudentRole';
 import DeleteConfirmation from '@/components/students/DeleteStudent';
+import StudentImportGuide from '@/components/students/StudentImportGuide';
+import StudentImportPreview from '@/components/students/StudentImportPreview';
 import StudentProfile from '@/components/students/StudentProfile';
+import { STUDENT_IMPORT_COLUMNS } from '@/components/students/studentImportColumns';
 import useGet from '@/hooks/useGet';
 import useSearch from '@/hooks/useSearch';
 import { IClass } from '@/types/class.type';
@@ -370,9 +372,14 @@ const Page = () => {
       >
         <ImportForm
           portal="students"
-          formatUrl="https://docs.google.com/spreadsheets/d/1ie4RFb4avnZR8YxBWK80RPIHyJY3hRWYdKLC7NwprUU/edit?usp=sharing"
+          title="Import students from Excel"
+          endpoint="/students/import"
+          sendJson
+          columns={STUDENT_IMPORT_COLUMNS}
+          templateName="ESG-student-import-template.xlsx"
+          guide={<StudentImportGuide />}
           onClose={() => setShowImport(false)}
-          renderPreview={(data) => <PreviewDsExcel data={data} />}
+          renderPreview={(data) => <StudentImportPreview data={data} />}
         />
       </MainModal>
     </div>

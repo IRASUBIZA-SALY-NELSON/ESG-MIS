@@ -35,6 +35,7 @@ export interface UserProfile extends IModel {
   address: Address;
   profile: Profile;
   currentClass?: IClass;
+  currentClazz?: IClass;
   profilePicture: string;
 }
 

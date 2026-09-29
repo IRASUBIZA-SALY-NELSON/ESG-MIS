@@ -74,17 +74,7 @@ const AppealsPage = () => {
     status: false,
     appeal: null,
   });
-  const [openedAppeal, setOpenedAppeal] = useState({
-    description: '',
-    comment: '',
-    student: {
-      firstName: '',
-      lastName: '',
-    },
-    course: {
-      courseName: '',
-    },
-  });
+  const [openedAppeal, setOpenedAppeal] = useState<Appeal | null>(null);
   const [promptUser, setPromptUser] = useState(false);
 
   function openUserModal() {

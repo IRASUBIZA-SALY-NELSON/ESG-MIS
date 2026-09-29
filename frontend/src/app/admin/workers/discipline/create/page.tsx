@@ -10,6 +10,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useFormDraft, rwandaLocationExtras } from '@/hooks/useFormDraft';
+import DraftNotice from '@/components/core/DraftNotice';
 import { ClipLoader } from 'react-spinners';
 import * as yup from 'yup';
 import backBtn from '../../../../../assets/back.svg';
@@ -39,13 +41,34 @@ const NewDiscipline = () => {
     phone: yup.string().required("Please provide the teacher's phone Number"),
     country: yup.string().required('Please provide the country for the teacher'),
   });
+  const form = useForm({
+    resolver: yupResolver(schema),
+  });
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
-  } = useForm({
-    resolver: yupResolver(schema),
-  });
+  } = form;
+  const { savedAt, clear } = useFormDraft(
+    form,
+    rwandaLocationExtras(
+      {
+        selectedProvince,
+        selectedDistrict,
+        selectedSector,
+        selectedCell,
+        selectedVillage,
+      },
+      {
+        selectedProvince: setSelectedProvince,
+        selectedDistrict: setSelectedDistrict,
+        selectedSector: setSelectedSector,
+        selectedCell: setSelectedCell,
+        selectedVillage: setSelectedVillage,
+      },
+    ),
+  );
   const handleFilesSelected = (filetype: string, files: File[]) => {
     setSelectedFile(files[0]);
   };
@@ -78,6 +101,7 @@ const NewDiscipline = () => {
           color: 'green',
           autoClose: 3000,
         });
+        clear();
         window.history.back();
       })
       .catch((err) => {
@@ -111,6 +135,13 @@ const NewDiscipline = () => {
         </h2>
       </div>
       <p className="text-[rgba(67,67,67,0.43)] my-2 capitalize">Add a new Discipline staff</p>
+      <DraftNotice
+        savedAt={savedAt}
+        onDiscard={() => {
+          clear();
+          reset();
+        }}
+      />
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-y-3">
         <Fieldset
           legend={<span className="font-semibold text-mainPurple">Personal information</span>}

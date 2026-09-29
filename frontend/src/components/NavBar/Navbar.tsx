@@ -82,7 +82,7 @@ const Navbar: React.FC<Props> = ({ logginPage, routes, rightRoutes }) => {
               {rightRoutes?.map((route) => (
                 <Menu.Item
                   onClick={() => router.push(route.path)}
-                  key={route.name}
+                  key={route.path || route.name}
                   leftSection={<route.icon size={route.iconSize ?? 20} />}
                 >
                   <Link href={route.path} className="flex flex-row gap-5 items-center">

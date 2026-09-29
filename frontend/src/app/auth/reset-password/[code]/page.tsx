@@ -32,10 +32,16 @@ const VerifyCode = () => {
       return;
     }
     try {
-      const res = await api.put('/auth/reset-password', {
+      if (data.password.length < 8) {
+        setError('Password must be at least 8 characters');
+        return;
+      }
+      await api.put('/auth/reset-password', {
         email: email,
+        code: String(code),
         newPassword: data.password,
       });
+      localStorage.removeItem('resetEmail');
       setSuccess(true);
       notifications.show({
         title: 'Password reset',

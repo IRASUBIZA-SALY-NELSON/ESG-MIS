@@ -12,7 +12,7 @@ import { BsFillCalendar2RangeFill } from 'react-icons/bs';
 import { FaBookReader, FaUserFriends } from 'react-icons/fa';
 import { GiNotebook, GiVote } from 'react-icons/gi';
 import { SideBarRoute } from '.';
-import { MdFileUploadOff, MdSchedule } from 'react-icons/md';
+import { MdFileUploadOff, MdOutlineHistory, MdSchedule } from 'react-icons/md';
 
 const adminRoutes: SideBarRoute[] = [
   {
@@ -90,15 +90,15 @@ const adminRoutes: SideBarRoute[] = [
   },
   {
     name: 'Staff',
-    path: '/admin/workers',
-    icon: ParentsStudentsIcon,
-  },
-  {
-    name: 'Staff',
     path: '',
     icon: ParentsStudentsIcon,
     hasSubRoutes: true,
     routes: [
+      {
+        name: 'All staff',
+        path: '/admin/workers',
+        icon: ParentsStudentsIcon,
+      },
       {
         name: 'Teachers',
         path: '/admin/workers/teachers',
@@ -126,6 +126,12 @@ const adminRoutes: SideBarRoute[] = [
     name: 'Users',
     path: '/admin/users',
     icon: FaUserFriends,
+  },
+  {
+    name: 'Audit log',
+    path: '/admin/audit',
+    icon: MdOutlineHistory,
+    iconSize: 23,
   },
   // {
   //   name: 'Roles',
