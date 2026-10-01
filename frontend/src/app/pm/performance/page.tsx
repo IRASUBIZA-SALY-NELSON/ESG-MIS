@@ -30,12 +30,6 @@ import {
 import Image from 'next/image';
 import ExportPerformance from '@/components/academics/ExportPerformance';
 
-const defaultAssign = {
-  clazz: false,
-  data: null as any,
-  school: false,
-};
-
 const ClassesPage = () => {
   const [activeYear, setActiveYear] = useState<IAcademicYear | null>(null);
   const {
@@ -81,7 +75,6 @@ const ClassesPage = () => {
     status: false,
     data: null as any,
   });
-  const [isExport, setIsExport] = useState(defaultAssign);
   const onEdit = (data: any) => {
     setIsEdit({
       status: true,
@@ -151,6 +144,7 @@ const ClassesPage = () => {
         <div className="flex items-center justify-center gap-2">
           <Button
             onClick={() => {
+              setClassId(null);
               setModalIsOpen(true);
             }}
             className="rounded-lg bg-primary text-white"
@@ -198,7 +192,8 @@ const ClassesPage = () => {
           data={{ classId: classId }}
           onClose={() => {
             get();
-            setIsExport(defaultAssign);
+            setClassId(null);
+            setModalIsOpen(false);
           }}
           academicYearId={activeYear?.id || ''}
         />

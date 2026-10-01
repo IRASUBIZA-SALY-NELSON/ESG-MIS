@@ -167,13 +167,10 @@ const PublicReportsPage = () => {
         >
           <ViewReportCard
             student={openReport.student}
-            // academicYearId={acaYearId}
-            customUrl={`/academicMarks/report-card/by-parent${
-              tokenInput ? `?token=${tokenInput}` : ''
-            }`}
             useAuth={false}
             defaultAcademicYearId={openReport.academicYearId}
             reportCardToken={tokenInput ?? token ?? ''}
+            documentUrl="/academicMarks/report-card-document/by-parent"
           />
         </MainModal>
       )}

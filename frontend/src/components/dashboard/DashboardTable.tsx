@@ -34,7 +34,7 @@ const DashboardTable = <T,>({
 
   useEffect(() => {
     // setTermsFilter(selectedFilter?.name);
-    setLastFiveMarks(data.slice(0, 5));
+    setLastFiveMarks(Array.isArray(data) ? data.slice(0, 5) : []);
   }, [data]);
 
   const renderCell = (column: Column<T>, mark: T) => {
@@ -92,7 +92,7 @@ const DashboardTable = <T,>({
         <div>
           {lastFiveMarks.length === 0 ? (
             <div className="flex flex-col  items-center justify-center ">
-              <Image src={NoDataGif} alt="" className="w-[200px]" />
+              <Image src={NoDataGif} alt="" width={200} height={200} className="w-[200px] h-auto" />
               <p className="text-sm text-gray-500">
                 Currently, there is no performance data to display for this term.
               </p>

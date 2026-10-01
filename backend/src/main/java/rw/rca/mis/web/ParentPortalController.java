@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import rw.rca.mis.common.ApiResponse;
 import rw.rca.mis.finance.FinanceService;
 import rw.rca.mis.service.ParentPortalService;
+import rw.rca.mis.service.ReportCardDocumentService;
 
 /** Endpoints for logged-in parents. Every child endpoint checks the parent-student link. */
 @RestController
@@ -20,10 +21,13 @@ import rw.rca.mis.service.ParentPortalService;
 public class ParentPortalController {
   private final ParentPortalService portal;
   private final FinanceService finance;
+  private final ReportCardDocumentService documents;
 
-  public ParentPortalController(ParentPortalService portal, FinanceService finance) {
+  public ParentPortalController(
+      ParentPortalService portal, FinanceService finance, ReportCardDocumentService documents) {
     this.portal = portal;
     this.finance = finance;
+    this.documents = documents;
   }
 
   @GetMapping("/children/{studentId}/bills")
@@ -60,6 +64,14 @@ public class ParentPortalController {
   public ApiResponse<?> reportCard(
       @PathVariable UUID studentId, @RequestParam(required = false) UUID academicYearId) {
     return ApiResponse.ok(portal.reportCard(studentId, academicYearId));
+  }
+
+  /** Official report-card PDF payload — same document students and staff see. */
+  @GetMapping("/children/{studentId}/report-card-document")
+  public ApiResponse<?> reportCardDocument(
+      @PathVariable UUID studentId, @RequestParam(required = false) UUID academicYearId) {
+    portal.assertChild(studentId);
+    return ApiResponse.ok(documents.document(studentId, academicYearId));
   }
 
   @GetMapping("/children/{studentId}/discipline")

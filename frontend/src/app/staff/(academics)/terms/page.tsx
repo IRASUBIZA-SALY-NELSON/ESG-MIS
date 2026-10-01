@@ -6,7 +6,7 @@ import { ITerm } from '@/types/other.type';
 export const revalidate = 15; // seconds
 
 export const metadata: Metadata = {
-  title: 'Terms - RCAMIS',
+  title: 'Terms - ESG',
   description: 'View and manage terms',
 };
 

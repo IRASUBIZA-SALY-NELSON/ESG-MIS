@@ -1,8 +1,10 @@
 package rw.rca.mis.service;
 
+import jakarta.annotation.PreDestroy;
 import jakarta.mail.internet.MimeMessage;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +18,14 @@ public class MailService {
   private static final Logger log = LoggerFactory.getLogger(MailService.class);
 
   private final JavaMailSender sender;
-  private final ExecutorService background = Executors.newFixedThreadPool(2);
+  private final ExecutorService background =
+      Executors.newFixedThreadPool(
+          2,
+          runnable -> {
+            Thread thread = new Thread(runnable, "mail-sender");
+            thread.setDaemon(true);
+            return thread;
+          });
 
   @Value("${spring.mail.username:}")
   private String username;
@@ -26,6 +35,16 @@ public class MailService {
 
   public MailService(JavaMailSender sender) {
     this.sender = sender;
+  }
+
+  @PreDestroy
+  void shutdownMailPool() {
+    background.shutdownNow();
+    try {
+      background.awaitTermination(2, TimeUnit.SECONDS);
+    } catch (InterruptedException interrupted) {
+      Thread.currentThread().interrupt();
+    }
   }
 
   public boolean isConfigured() {

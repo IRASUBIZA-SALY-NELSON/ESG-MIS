@@ -1,10 +1,19 @@
 package rw.rca.mis.service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import rw.rca.mis.domain.Candidate;
 import rw.rca.mis.domain.NewsItem;
 import rw.rca.mis.domain.PastPaper;
@@ -177,5 +186,66 @@ public class ExtrasService {
       vote.setSession(sessions.findById(Lookup.uuid(body.get("sessionId"))).orElse(null));
     }
     return votes.save(vote);
+  }
+
+  public Map<String, Object> electionResults(UUID sessionId) {
+    VotingSession session =
+        sessions
+            .findById(sessionId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Voting session not found"));
+    List<Vote> ballots = votes.findBySessionId(sessionId);
+    Set<Position> positionSet = new LinkedHashSet<>(session.getPositions());
+    ballots.stream().map(Vote::getPosition).filter(Objects::nonNull).forEach(positionSet::add);
+
+    List<Map<String, Object>> positionRows = new ArrayList<>();
+    Map<UUID, List<Vote>> byPosition =
+        ballots.stream()
+            .filter(vote -> vote.getPosition() != null)
+            .collect(Collectors.groupingBy(vote -> vote.getPosition().getId()));
+
+    for (Position position : positionSet) {
+      List<Vote> forPosition = byPosition.getOrDefault(position.getId(), List.of());
+      Map<UUID, Long> tally =
+          forPosition.stream()
+              .filter(vote -> vote.getCandidate() != null)
+              .collect(Collectors.groupingBy(vote -> vote.getCandidate().getId(), Collectors.counting()));
+      List<Map<String, Object>> candidates = new ArrayList<>();
+      for (Map.Entry<UUID, Long> entry : tally.entrySet()) {
+        Candidate candidate =
+            forPosition.stream()
+                .map(Vote::getCandidate)
+                .filter(item -> item != null && entry.getKey().equals(item.getId()))
+                .findFirst()
+                .orElse(null);
+        Map<String, Object> row = new LinkedHashMap<>();
+        String name =
+            candidate == null || candidate.getStudent() == null ? "" : candidate.getStudent().fullName();
+        row.put("name", name);
+        row.put("votes", entry.getValue());
+        candidates.add(row);
+      }
+      candidates.sort(Comparator.comparingLong((Map<String, Object> row) -> (Long) row.get("votes")).reversed());
+      Long previous = null;
+      int rank = 1;
+      for (int i = 0; i < candidates.size(); i++) {
+        Long current = (Long) candidates.get(i).get("votes");
+        if (previous != null && !previous.equals(current)) {
+          rank = i + 1;
+        }
+        candidates.get(i).put("rank", rank);
+        previous = current;
+      }
+      Map<String, Object> positionRow = new LinkedHashMap<>();
+      positionRow.put("name", position.getName());
+      positionRow.put("candidates", candidates);
+      positionRows.add(positionRow);
+    }
+
+    Map<String, Object> body = new LinkedHashMap<>();
+    body.put("title", session.getTitle());
+    body.put("startDate", session.getStartDate());
+    body.put("endDate", session.getEndDate());
+    body.put("positions", positionRows);
+    return body;
   }
 }

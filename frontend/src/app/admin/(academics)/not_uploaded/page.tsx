@@ -39,21 +39,27 @@ const UnApploadedTeachers = () => {
     setTeacher(teacher);
     open();
   };
-  const getUnApploadedTeachers = () => {
+  const getUnApploadedTeachers = (id?: string) => {
+    const tid = id || termId;
+    if (!tid) return;
     setLoading(true);
-    AuthApi.get(`/teachers/not_finished_marking/all/${termId}`)
+    setError('');
+    AuthApi.get(`/teachers/not_finished_marking/all/${tid}`)
       .then((res) => {
-        setData(res.data.data);
-        const uniqueTeachers: any = {};
-        res.data.data?.forEach((item: any) => {
-          const teacherId = item.teacher?.id;
-          uniqueTeachers[teacherId] = item.teacher;
+        const rows = Array.isArray(res.data?.data) ? res.data.data : [];
+        setData(rows);
+        const uniqueTeachers: Record<string, any> = {};
+        rows.forEach((item: any) => {
+          const teacher = item?.teacher ?? item;
+          if (teacher?.id) uniqueTeachers[teacher.id] = teacher;
         });
-        const uniqueTeachersArray: any = Object.values(uniqueTeachers);
-        setUnApploadedTeachers(uniqueTeachersArray);
-        setLoading(false);
+        setUnApploadedTeachers(Object.values(uniqueTeachers) as any);
       })
-      .catch((err) => {});
+      .catch(() => {
+        setError('Could not load teachers');
+        setUnApploadedTeachers([]);
+      })
+      .finally(() => setLoading(false));
   };
   useEffect(() => {
     if (termId) {
@@ -81,7 +87,7 @@ const UnApploadedTeachers = () => {
       header: 'View Classes',
       cell: ({ row }) => (
         <div className="w-1/2 flex justify-center">
-          <span className="cursor-pointer" onClick={() => openTeacherClasses(row.original.id)}>
+          <span className="cursor-pointer" onClick={() => row.original?.id && openTeacherClasses(row.original.id)}>
             <FiEye color="#0357BD" size={18} />
           </span>
         </div>
@@ -102,7 +108,8 @@ const UnApploadedTeachers = () => {
 
   const openTeacherClasses = (teacherId: string) => {
     const classes = data.filter((item: any) => {
-      return item.teacher.id === teacherId;
+      const teacher = item?.teacher ?? item;
+      return teacher?.id === teacherId;
     });
     setIndividualClasses(classes);
     setShowClasses(true);
@@ -151,8 +158,8 @@ const UnApploadedTeachers = () => {
                       datasrc={`/terms/all/academic-year/${acaYearId}`}
                       variant="default"
                       onChange={(e) => {
+                        if (!e) return;
                         setTermId(e);
-                        getUnApploadedTeachers();
                       }}
                       value={termId ?? ''}
                       placeholder="Select term"

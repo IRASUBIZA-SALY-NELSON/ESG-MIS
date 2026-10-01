@@ -117,8 +117,8 @@ public class PeopleController {
     return ApiResponse.ok("Deleted", id);
   }
 
-  @GetMapping("/teachers/not_finished_marking/all/{termId}")
-  public ApiResponse<?> unfinished(@PathVariable UUID termId) {
+  @GetMapping({"/teachers/not_finished_marking/all", "/teachers/not_finished_marking/all/{termId}"})
+  public ApiResponse<?> unfinished(@PathVariable(required = false) String termId) {
     return ApiResponse.ok(people.byRole("TEACHER"));
   }
 
@@ -163,6 +163,14 @@ public class PeopleController {
     return ApiResponse.ok(Pages.of(people.everyone(), page, limit));
   }
 
+  @GetMapping("/users/search")
+  public ApiResponse<?> searchUsers(
+      @RequestParam(required = false) String query,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int limit) {
+    return ApiResponse.ok(Pages.of(people.searchUsers(query), page, limit));
+  }
+
   @GetMapping({"/student-class-term/student/{id}"})
   public ApiResponse<?> placements(@PathVariable UUID id) {
     return ApiResponse.ok(people.placementsForStudent(id));
@@ -170,6 +178,6 @@ public class PeopleController {
 
   @GetMapping("/student-class-term/class/term")
   public ApiResponse<?> classTerm(@RequestParam UUID classId, @RequestParam UUID termId) {
-    return ApiResponse.ok(people.placementsForClassTerm(classId, termId));
+    return ApiResponse.ok(people.studentsForClassTerm(classId, termId));
   }
 }

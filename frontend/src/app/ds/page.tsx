@@ -175,7 +175,8 @@ const DsDashboard = () => {
       <div className="flex flex-col w-full p-3">
         <div className="flex items-center justify-between">
           <p className="text-[15px]  mt-2 text-slate-800">
-            {getGreeting()} <span className="font-extrabold">{me ? me.username : ' '}</span>
+            {getGreeting()}{' '}
+            <span className="font-extrabold">{me?.firstName || me?.username || ' '}</span>
           </p>
           <div className="flex items-center gap-2 ">
             <p className="text-xs text-primary font-bold">View Analytics from </p>

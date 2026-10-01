@@ -71,16 +71,9 @@ export const StatusBadge = ({ status }: { status?: string }) => {
 export const ReleaseNote = ({ released }: { released: Released }) => {
   if (released === 'EXAM') return null;
   return (
-    <Alert
-      color={released === 'NONE' ? 'gray' : 'blue'}
-      variant="light"
-      radius="md"
-      className="mb-3"
-    >
-      {released === 'NONE'
-        ? 'The school has not released marks for this term yet.'
-        : 'Only continuous assessment (CAT) marks are released for this term. Exam marks will appear once the school publishes them.'}
-    </Alert>
+    <p className="text-sm text-gray-600 bg-white border rounded-xl px-3 py-2">
+      {released === 'NONE' ? 'Marks not released yet.' : 'Only CAT marks are out so far.'}
+    </p>
   );
 };
 
@@ -133,18 +126,18 @@ export const Section = ({
 );
 
 export const LoadingBlock = ({ label = 'Loading…' }: { label?: string }) => (
-  <div className="flex flex-row items-center gap-3 justify-center py-16 text-gray-500">
+  <div className="flex flex-row items-center gap-3 justify-center py-10 text-gray-500">
     <Loader size="sm" color="#024F3A" />
     <span>{label}</span>
   </div>
 );
 
 export const ErrorBlock = ({ message, onRetry }: { message: string; onRetry?: () => void }) => (
-  <Alert color="red" variant="light" radius="md" title="Something went wrong">
-    <div className="flex flex-row items-center gap-3 flex-wrap">
-      <span>{message}</span>
+  <Alert color="red" variant="light" radius="md">
+    <div className="flex flex-col gap-2">
+      <span className="text-sm">{message}</span>
       {onRetry && (
-        <button className="underline text-sm" onClick={onRetry}>
+        <button className="underline text-sm min-h-11 text-left" onClick={onRetry}>
           Try again
         </button>
       )}

@@ -9,11 +9,12 @@ import { EditIcon } from '@/components/core/icons/icons1';
 import MainModal from '@/components/core/modals/modal';
 import useGet from '@/hooks/useGet';
 import { ISession } from '@/types/other.type';
-import { baseUrl } from '@/utils/constants';
+import { AuthApi } from '@/utils/constants';
+import { downloadPdf } from '@/components/library/export';
+import { getResError } from '@/utils/fetch';
 import { ActionIcon, Button } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { ColumnDef } from '@tanstack/react-table';
-import { getCookie } from 'cookies-next';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next13-progressbar';
 import { useState } from 'react';
@@ -57,28 +58,32 @@ const SessionsPage = () => {
     });
   };
 
-  const handleExportExcel = async (sessionId: string) => {
+  const handleExportPdf = async (sessionId: string) => {
     setLoadingExport(true);
     try {
-      const res = await fetch(`${baseUrl}/api/v1/exporting/election-results/${sessionId}`, {
-        headers: {
-          Authorization: `Bearer ${getCookie('token')}`,
-        },
+      const res = await AuthApi.get(`/exporting/election-results/${sessionId}`);
+      const report = res.data?.data ?? res.data;
+      const positions = Array.isArray(report?.positions) ? report.positions : [];
+      await downloadPdf({
+        filename: `${report?.title || 'election'}-results`,
+        title: 'Election results',
+        subtitle: report?.title,
+        department: 'Student elections',
+        footer: 'ESG · Student elections',
+        sections: positions.map((position: any) => ({
+          name: position.name || 'Position',
+          head: ['Rank', 'Candidate', 'Votes'],
+          rows: (position.candidates || []).map((candidate: any) => [
+            candidate.rank ?? '—',
+            candidate.name || '',
+            candidate.votes ?? 0,
+          ]),
+        })),
       });
-      const blob = await res.blob();
-      // export blob
-      const url = window.URL.createObjectURL(blob);
-      // window.open(url, '_blank');
-      const link = document.createElement('a');
-      link.href = url;
-      const session = data?.find((item) => item.id === sessionId);
-      link.download = `${session?.title}-Results.xlsx`;
-      link.click();
-      link.remove();
     } catch (err) {
       notifications.show({
-        title: 'Error',
-        message: 'There has been an error in generating the excel!',
+        title: 'Export failed',
+        message: getResError(err) || 'Could not generate the results PDF.',
         color: 'red',
       });
     } finally {
@@ -133,15 +138,15 @@ const SessionsPage = () => {
       cell: ({ row }) => (
         <div className="flex items-center gap-x-2">
           <Button
-            onClick={() => handleExportExcel(row.original.id)}
+            onClick={() => handleExportPdf(row.original.id)}
             variant="outline"
             radius="0"
-            color="green"
+            color="dark"
             loading={loadingExport}
             disabled={loadingExport}
             leftSection={<BiExport />}
           >
-            Export Excel
+            Download PDF
           </Button>
         </div>
       ),

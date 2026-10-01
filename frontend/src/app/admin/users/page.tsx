@@ -16,9 +16,28 @@ import { BiExport } from 'react-icons/bi';
 import { CiSearch } from 'react-icons/ci';
 import 'react-loading-skeleton/dist/skeleton.css';
 
+const viewOf = (row: any) => {
+  const person = row?.person ?? row ?? {};
+  const user = row?.user ?? row ?? {};
+  return {
+    ...row,
+    person,
+    user: {
+      ...user,
+      id: user.id ?? row?.id,
+      email: user.email ?? person.email,
+      username: user.username ?? person.username,
+      accountStatus: user.accountStatus ?? person.status ?? user.status,
+    },
+    roles: row?.roles ?? (person.roleName ? [{ roleName: person.roleName }] : []),
+  };
+};
+
 const AdminUsers = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showExport, setShowExport] = useState(false);
+  const [searchResults, setSearchResults] = useState<any[] | null>(null);
+  const [searchLoading, setSearchLoading] = useState(false);
 
   // Fetch users using the hook.
   // Assumes the backend returns { content: [...], totalItems: ..., ... } inside the ApiResponse data
@@ -41,24 +60,35 @@ const AdminUsers = () => {
     },
   });
 
-  const {
-    getPaginated: searchUsers,
-    data: searchResults,
-    loading: searchLoading,
-  } = useGet<any[]>('/users/search', {
-    defaultData: [],
-    paginated: true,
-    query: {
-      query: searchQuery,
-    },
-  });
+  const searchUsers = async () => {
+    setSearchLoading(true);
+    try {
+      const res = await AuthApi.get('/users/search', {
+        params: { query: searchQuery.trim(), page: paginateOpts.page, limit: paginateOpts.limit },
+      });
+      const pageData = res.data?.data ?? res.data;
+      setSearchResults(pageData?.content ?? []);
+      setPaginateOpts((prev) => ({ ...prev, totalPages: pageData?.totalPages ?? 0 }));
+    } catch (error: any) {
+      setSearchResults([]);
+      notifications.show({
+        title: 'Error',
+        message: error?.response?.data?.message || 'Failed to search users',
+        color: 'red',
+      });
+    } finally {
+      setSearchLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (searchQuery) {
+    if (searchQuery.trim()) {
       searchUsers();
-    } else {
-      getPaginated();
+      return;
     }
+    setSearchResults(null);
+    getPaginated();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paginateOpts.page, paginateOpts.limit, searchQuery]);
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -152,7 +182,7 @@ const AdminUsers = () => {
     }
   };
 
-  const displayData = searchQuery ? searchResults : users;
+  const displayData = (searchQuery.trim() ? searchResults : users)?.map(viewOf);
   const isLoading = searchQuery ? searchLoading : loading;
 
   const columns: ColumnDef<any>[] = [

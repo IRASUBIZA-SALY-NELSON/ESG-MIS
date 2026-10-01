@@ -332,6 +332,10 @@ public class ParentPortalService {
 
   // ---------------------------------------------------------------- access
 
+  public void assertChild(UUID studentId) {
+    requireChild(lookup.currentUser(), studentId);
+  }
+
   ParentLink requireChild(Person parent, UUID studentId) {
     if (studentId == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "studentId is required");

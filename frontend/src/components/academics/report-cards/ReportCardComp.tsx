@@ -44,7 +44,7 @@ export default ({ info }: any) => {
             <h1>ECOLE DES SCIENCES DE GISENYI</h1>
             <img className="w-20" src={`${clientUrl}/logo.png`} />
             <p>Telephone:(+250)788548000</p>
-            <p>Email: papiasni@gmail.com</p>
+            <p>Email: salynelson@gmail.com</p>
           </div>
           <div className=" w-44 h-fit object-cover aspect-[6/7] border border-black overflow-hidden">
             <img className="object-cover min-h-full min-w-full" src={`${clientUrl}/photo.png`} />

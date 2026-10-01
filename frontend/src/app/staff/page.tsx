@@ -122,7 +122,8 @@ const TeacherDashboard = () => {
     <div className="flex flex-row gap-5  text-sm h-full">
       <div className="flex flex-col w-full p-3">
         <p className="text-[15px]  mt-2 text-slate-800">
-          {getGreeting()} <span className="font-extrabold">{me ? me.username : ' '}</span>
+          {getGreeting()}{' '}
+          <span className="font-extrabold">{me?.firstName || me?.username || ' '}</span>
         </p>
         <>
           <div className="">

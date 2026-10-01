@@ -2,7 +2,6 @@ import { Button } from '@mantine/core';
 import { getCookie } from 'cookies-next';
 import { useUserContext } from '@/context/Usercontext';
 import { BsFilePdf } from 'react-icons/bs';
-import { BsFileExcel } from 'react-icons/bs';
 import { backend } from '@/utils/constants';
 import React, { useEffect, useState } from 'react';
 
@@ -27,7 +26,6 @@ const ExportMarks = ({
   className,
   academicYearId,
 }: Props) => {
-  const [loadingExcel, setLoadingExcel] = useState(false);
   const [loadingPdf, setLoadingPdf] = useState(false);
   const [selectedAcademicYearId, setSelectedAcademicYearId] = useState<string>(
     academicYearId || '',
@@ -36,31 +34,6 @@ const ExportMarks = ({
   const [academicYears, setAcademicYears] = useState<Array<{ id: string; name: string }>>([]);
   const [terms, setTerms] = useState<Array<{ id: string; name: string }>>([]);
   const { profile } = useUserContext();
-
-  const downloadFile = async (url: string, filename: string, setLoading: (v: boolean) => void) => {
-    setLoading(true);
-    try {
-      const res = await fetch(url, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${getCookie('token')}`,
-        },
-      });
-      const blob = await res.blob();
-      const link = document.createElement('a');
-      link.href = window.URL.createObjectURL(blob);
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      onClose();
-    } catch (e) {
-      console.error(e);
-    }
-    setLoading(false);
-  };
-
-  const excelUrl = `${backend}/exporting/term/${termId}/class/${classId}/course/${courseId}/export-excel`;
   const safeName = (tableName ?? 'Marks').replace(/\s+/g, '_');
 
   const handleClientPdf = async () => {
@@ -340,19 +313,9 @@ const ExportMarks = ({
         <div className="flex w-full justify-center gap-3">
           <Button
             className="flex items-center"
-            color="green"
-            loading={loadingExcel}
-            disabled={loadingExcel || loadingPdf}
-            onClick={() => downloadFile(excelUrl, `${safeName}.xlsx`, setLoadingExcel)}
-          >
-            <BsFileExcel className="mr-2" />
-            Download Excel
-          </Button>
-          <Button
-            className="flex items-center"
-            color="red"
+            color="dark"
             loading={loadingPdf}
-            disabled={loadingExcel || loadingPdf || !selectedAcademicYearId || !selectedTermId}
+            disabled={loadingPdf || !selectedAcademicYearId || !selectedTermId}
             onClick={handleClientPdf}
           >
             <BsFilePdf className="mr-2" />

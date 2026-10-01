@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { MARGIN, MUTED, bwTable, drawSchoolFooter, drawSchoolHeader } from '@/utils/pdf/schoolLetterhead';
 
 export type MarksPdfMeta = {
   academicYear: string;
@@ -19,131 +20,62 @@ export async function generateMarksPdf({
   meta: MarksPdfMeta;
   logoPath?: string;
 }): Promise<Blob> {
+  const ranked = [...rows].sort((a, b) => Number(b[7] ?? 0) - Number(a[7] ?? 0));
+  let lastTotal: number | null = null;
+  let rank = 1;
+  const body = ranked.map((row, i) => {
+    const total = Number(row[7] ?? 0);
+    if (lastTotal != null && total !== lastTotal) rank = i + 1;
+    lastTotal = total;
+    return [rank, row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]];
+  });
+
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const margin = 40;
-  let y = margin;
-
-  // Left identity block
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
-  doc.text('REPUBLIC OF RWANDA', margin, y);
-  y += 16;
-  doc.text('MINISTRY OF EDUCATION', margin, y);
-  y += 16;
-  doc.text('ECOLE DES SCIENCES DE GISENYI', margin, y);
-
-  // Logo
-  try {
-    const dataUrl = await toDataUrl(logoPath);
-    const img = (doc as any).getImageProperties?.(dataUrl);
-    const maxW = 100;
-    const maxH = 60;
-    const { w, h } = scaleToFit(img?.width || 100, img?.height || 60, maxW, maxH);
-    const logoY = margin + 50; // below identity
-    doc.addImage(dataUrl, 'PNG', margin, logoY, w, h);
-
-    // contacts under logo
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    doc.text('Tel: (+250) 788548000', margin, logoY + h + 12);
-    doc.text('Email: info@esg.ac.rw', margin, logoY + h + 26);
-  } catch (e) {
-    // ignore logo if not found
-  }
-
-  // Right metadata block
-  const rightX = pageWidth - margin - 260;
-  let my = margin;
-  const lineGap = 14;
-  const rightRow = (label: string, value: string) => {
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(11);
-    doc.text(label, rightX, my);
-    doc.setFont('helvetica', 'normal');
-    doc.text(value || '', rightX + 110, my);
-    my += lineGap;
-  };
-  rightRow('Academic Year: ', meta.academicYear);
-  rightRow('Term: ', meta.termName);
-  rightRow('Class: ', meta.className);
-  rightRow('Subject: ', meta.courseName);
-  rightRow('Teacher: ', meta.teacherName || '');
-  rightRow("Teacher's Tel: ", meta.teacherTel || '');
-
-  // Table
-  const head = [['No.', 'Reg No', 'Student Name', 'CAT', 'Max', 'Exam', 'Max', 'Total', 'Max']];
-  autoTable(doc, {
-    head,
-    body: rows,
-    startY: Math.max(margin + 150, my + 20),
-    styles: { font: 'helvetica', fontSize: 10, cellPadding: 4 },
-    headStyles: { fillColor: [2, 79, 58], halign: 'left' },
-    columnStyles: {
-      0: { cellWidth: 30 },
-      1: { cellWidth: 60 },
-      2: { cellWidth: 140 },
-      3: { cellWidth: 40 },
-      4: { cellWidth: 50 },
-      5: { cellWidth: 40 },
-      6: { cellWidth: 50 },
-      7: { cellWidth: 40 },
-      8: { cellWidth: 50 },
+  const y = await drawSchoolHeader(
+    doc,
+    {
+      title: meta.courseName ? `${meta.courseName} marks` : 'Class marks',
+      lines: [
+        meta.academicYear ? `Academic year ${meta.academicYear}` : '',
+        meta.termName || '',
+        meta.className || '',
+      ],
     },
-    margin: { left: margin, right: margin, bottom: margin + 120 },
-  });
+    logoPath,
+  );
 
-  // Draw footer only on the final page
-  const totalPages = (doc as any).getNumberOfPages?.() || 1;
-  (doc as any).setPage?.(totalPages);
-  const lastPageWidth = doc.internal.pageSize.getWidth();
-  const lastPageHeight = doc.internal.pageSize.getHeight();
-  const footerEstimatedHeight = 60;
-  const finalY = (doc as any).lastAutoTable?.finalY || 0;
-  if (finalY > lastPageHeight - margin - footerEstimatedHeight - 10) {
-    doc.addPage();
+  let startY = y;
+  if (meta.teacherName) {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(...MUTED);
+    doc.text(
+      `Teacher: ${meta.teacherName}${meta.teacherTel ? `  ·  ${meta.teacherTel}` : ''}`,
+      MARGIN,
+      y - 4,
+    );
+    startY = y + 8;
   }
-  const footerY = doc.internal.pageSize.getHeight() - margin - 40;
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
-  doc.text('Done at Rubavu', margin, footerY);
-  doc.setFont('helvetica', 'normal');
-  const today = new Date().toISOString().slice(0, 10);
-  doc.text(`Date: ${today}`, margin, footerY + 16);
 
-  const rightBlockX = doc.internal.pageSize.getWidth() - margin - 220;
-
-  const signatureY = footerY;
-
-  // Position 1 (Left-ish): Teacher
-  const teacherX = rightBlockX;
-  doc.setFont('helvetica', 'bold');
-  doc.text('Teacher', teacherX, signatureY);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Signature', teacherX, signatureY + 16);
-
-  // Position 2 (Right-most): Principal
-  const principalX = teacherX + 120;
-  doc.setFont('helvetica', 'bold');
-  doc.text('Principal', principalX, signatureY);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Signature & Stamp', principalX, signatureY + 16);
-
-  const blob = doc.output('blob');
-  return blob;
-}
-
-function scaleToFit(w: number, h: number, maxW: number, maxH: number) {
-  const scale = Math.min(maxW / w, maxH / h);
-  return { w: w * scale, h: h * scale };
-}
-
-async function toDataUrl(path: string): Promise<string> {
-  const res = await fetch(path);
-  const blob = await res.blob();
-  return await new Promise<string>((resolve) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result as string);
-    reader.readAsDataURL(blob);
+  autoTable(doc, {
+    head: [['Rank', 'Reg No', 'Student name', 'CAT', 'Max', 'Exam', 'Max', 'Total', 'Max']],
+    body,
+    startY,
+    ...bwTable,
+    styles: { ...bwTable.styles, fontSize: 8 },
+    columnStyles: {
+      0: { cellWidth: 36, halign: 'center' },
+      1: { cellWidth: 58 },
+      3: { cellWidth: 38, halign: 'right' },
+      4: { cellWidth: 38, halign: 'right' },
+      5: { cellWidth: 38, halign: 'right' },
+      6: { cellWidth: 38, halign: 'right' },
+      7: { cellWidth: 42, halign: 'right' },
+      8: { cellWidth: 38, halign: 'right' },
+    },
+    margin: { left: MARGIN, right: MARGIN, bottom: 80 },
   });
+
+  drawSchoolFooter(doc);
+  return doc.output('blob');
 }

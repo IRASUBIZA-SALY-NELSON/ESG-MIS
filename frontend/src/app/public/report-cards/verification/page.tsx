@@ -30,25 +30,10 @@ export async function generateMetadata({ searchParams }: PageProps) {
   const student = await getStudent(token, studentId);
   if (!student) return notFound();
   return {
-    title: `${student?.firstName}  ${student?.firstName}'s Report Card`,
-    description: `Verify ${student?.firstName}  ${student?.firstName}'s Report Card`,
+    title: `${student?.firstName} ${student?.lastName}'s Report Card`,
+    description: `Verify ${student?.firstName} ${student?.lastName}'s Report Card`,
   } as Metadata;
 }
-
-const getReportCardTkn = async (academicYearId: string, studentId: string, token: string) => {
-  try {
-    const res = await axios.get(`${baseUrl}/api/v1/academicMarks/report-card/by-parent`, {
-      params: {
-        token,
-        academicYearId,
-        studentId,
-      },
-    });
-    return res.data.data;
-  } catch (error) {
-    return null;
-  }
-};
 
 const VerifyReportPage = async ({ searchParams }: PageProps) => {
   const token = searchParams?.token;
@@ -62,19 +47,15 @@ const VerifyReportPage = async ({ searchParams }: PageProps) => {
 
   if (!student) return notFound();
 
-  const reportCard = await getReportCardTkn(academicYearId, studentId, token);
-
   return (
-    <div className=" w-full overflow-auto max-w-[800px]">
+    <div className="w-full overflow-auto max-w-[800px] px-2">
       <ViewReportCard
         student={student}
-        // academicYearId={academicYearId}
-        customUrl={`/academicMarks/report-card/by-parent?token=${token}`}
-        reportCard={reportCard}
         useAuth={false}
         viewAll={true}
         defaultAcademicYearId={academicYearId}
         reportCardToken={token}
+        documentUrl="/academicMarks/report-card-document/by-parent"
       />
     </div>
   );

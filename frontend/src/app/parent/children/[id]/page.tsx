@@ -8,36 +8,46 @@ import OverviewTab from '@/components/parent/child/OverviewTab';
 import ReportCardTab from '@/components/parent/child/ReportCardTab';
 import TeachersTab from '@/components/parent/child/TeachersTab';
 import { ChildSummary } from '@/components/parent/types';
-import { ErrorBlock, LoadingBlock, termLabel } from '@/components/parent/ui';
-import { Tabs } from '@mantine/core';
+import { ErrorBlock, LoadingBlock } from '@/components/parent/ui';
 import Link from 'next/link';
 import { useParams, usePathname, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
-import { FiArrowLeft } from 'react-icons/fi';
+import {
+  FiArrowLeft,
+  FiBookOpen,
+  FiCreditCard,
+  FiFileText,
+  FiShield,
+} from 'react-icons/fi';
 
-const TABS = [
-  { value: 'overview', label: 'Overview' },
-  { value: 'marks', label: 'Marks' },
-  { value: 'report-card', label: 'Report card' },
-  { value: 'discipline', label: 'Discipline' },
-  { value: 'appeals', label: 'Appeals' },
-  { value: 'teachers', label: 'Teachers & contacts' },
-  { value: 'bills', label: 'Bills' },
-];
+const SECTIONS = [
+  { value: 'marks', label: 'Marks', hint: 'CAT and exams', icon: FiBookOpen },
+  { value: 'report-card', label: 'Report card', hint: 'Official document', icon: FiFileText },
+  { value: 'discipline', label: 'Conduct', hint: 'Discipline marks', icon: FiShield },
+  { value: 'bills', label: 'Fees', hint: 'Bills to pay', icon: FiCreditCard },
+] as const;
+
+const TITLES: Record<string, string> = {
+  marks: 'Marks',
+  'report-card': 'Report card',
+  discipline: 'Conduct',
+  bills: 'Fees',
+  teachers: 'Teachers',
+  appeals: 'Appeals',
+};
 
 export default function ChildPage() {
   const { id } = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const initialTab = searchParams.get('tab');
-  const [tab, setTab] = useState(
-    TABS.some((t) => t.value === initialTab) ? initialTab! : 'overview',
-  );
-  const selectTab = (value: string | null) => {
-    const next = value ?? 'overview';
-    setTab(next);
-    window.history.replaceState(null, '', `${pathname}?tab=${next}`);
+  const initial = searchParams.get('tab');
+  const [tab, setTab] = useState(initial && TITLES[initial] ? initial : 'home');
+
+  const go = (value: string) => {
+    setTab(value);
+    window.history.replaceState(null, '', value === 'home' ? pathname : `${pathname}?tab=${value}`);
   };
+
   const {
     data: children,
     loading,
@@ -51,78 +61,85 @@ export default function ChildPage() {
   if (children && !child) {
     return (
       <div className="py-6">
-        <ErrorBlock message="This student is not linked to your account." />
-        <Link href="/parent" className="text-sm underline mt-3 inline-block">
-          Back to my children
+        <ErrorBlock message="This student is not on your account." />
+        <Link href="/parent" className="text-sm underline mt-3 inline-block min-h-11">
+          Back
         </Link>
       </div>
     );
   }
   if (!child) return null;
 
+  if (tab !== 'home') {
+    return (
+      <div className="flex flex-col gap-3">
+        <button
+          type="button"
+          onClick={() => go('home')}
+          className="flex items-center gap-2 min-h-11 -ml-1 text-primary font-medium print:hidden"
+        >
+          <FiArrowLeft size={20} />
+          {TITLES[tab] ?? 'Back'}
+        </button>
+        {tab === 'marks' && <MarksTab studentId={child.id} />}
+        {tab === 'report-card' && <ReportCardTab studentId={child.id} />}
+        {tab === 'discipline' && <DisciplineTab studentId={child.id} />}
+        {tab === 'bills' && <BillsTab studentId={child.id} />}
+        {tab === 'teachers' && <TeachersTab studentId={child.id} />}
+        {tab === 'appeals' && <AppealsTab studentId={child.id} />}
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-4 py-2">
-      <div className="flex flex-row items-center justify-between flex-wrap gap-3 print:hidden">
-        <div className="flex flex-row items-center gap-3">
-          <Link
-            href="/parent"
-            className="p-2 rounded-full hover:bg-primary/10 text-primary"
-            aria-label="Back"
-          >
-            <FiArrowLeft size={20} />
-          </Link>
-          <div className="h-11 w-11 rounded-full bg-primary text-white flex items-center justify-center font-semibold">
-            {child.firstName?.charAt(0)}
-            {child.lastName?.charAt(0)}
-          </div>
-          <div>
-            <p className="font-semibold text-primary text-lg leading-tight">{child.fullName}</p>
-            <p className="text-sm text-gray-500">
-              {child.className ?? 'No class'} ·{' '}
-              {child.currentTerm ? termLabel(child.currentTerm.name) : 'No active term'}
-              {child.studentStatus &&
-                child.studentStatus !== 'ACTIVE' &&
-                ` · ${child.studentStatus}`}
-            </p>
-          </div>
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center gap-3">
+        <Link
+          href="/parent"
+          className="h-11 w-11 rounded-full flex items-center justify-center text-primary -ml-2"
+          aria-label="Back"
+        >
+          <FiArrowLeft size={22} />
+        </Link>
+        <div className="min-w-0">
+          <h1 className="font-semibold text-primary text-lg leading-tight truncate">{child.fullName}</h1>
+          <p className="text-sm text-gray-500 truncate">{child.className ?? 'No class'}</p>
         </div>
       </div>
 
-      <Tabs value={tab} onChange={selectTab} color="#024F3A" keepMounted={false}>
-        <Tabs.List className="print:hidden bg-white rounded-t-lg px-2 overflow-x-auto flex-nowrap">
-          {TABS.map((t) => (
-            <Tabs.Tab key={t.value} value={t.value}>
-              {t.label}
-              {t.value === 'appeals' && child.pendingAppeals > 0 && (
-                <span className="ml-1 text-xs text-orange-600">({child.pendingAppeals})</span>
-              )}
-            </Tabs.Tab>
-          ))}
-        </Tabs.List>
-        <div className="pt-4">
-          <Tabs.Panel value="overview">
-            <OverviewTab studentId={child.id} />
-          </Tabs.Panel>
-          <Tabs.Panel value="marks">
-            <MarksTab studentId={child.id} />
-          </Tabs.Panel>
-          <Tabs.Panel value="report-card">
-            <ReportCardTab studentId={child.id} />
-          </Tabs.Panel>
-          <Tabs.Panel value="discipline">
-            <DisciplineTab studentId={child.id} />
-          </Tabs.Panel>
-          <Tabs.Panel value="appeals">
-            <AppealsTab studentId={child.id} />
-          </Tabs.Panel>
-          <Tabs.Panel value="teachers">
-            <TeachersTab studentId={child.id} />
-          </Tabs.Panel>
-          <Tabs.Panel value="bills">
-            <BillsTab studentId={child.id} />
-          </Tabs.Panel>
-        </div>
-      </Tabs>
+      <OverviewTab studentId={child.id} />
+
+      <div className="grid grid-cols-2 gap-3">
+        {SECTIONS.map((item) => {
+          const Icon = item.icon;
+          return (
+            <button
+              key={item.value}
+              type="button"
+              onClick={() => go(item.value)}
+              className="bg-white border rounded-2xl p-4 text-left min-h-[7rem] flex flex-col gap-2 active:bg-gray-50"
+            >
+              <span className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                <Icon size={20} />
+              </span>
+              <span className="font-semibold text-primary">{item.label}</span>
+              <span className="text-xs text-gray-500">{item.hint}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
+        <button type="button" onClick={() => go('teachers')} className="min-h-11 text-primary font-medium">
+          Teachers
+        </button>
+        <button type="button" onClick={() => go('appeals')} className="min-h-11 text-primary font-medium">
+          Appeals{child.pendingAppeals > 0 ? ` (${child.pendingAppeals})` : ''}
+        </button>
+        <Link href={`/parent/concerns?studentId=${child.id}`} className="min-h-11 text-primary font-medium flex items-center">
+          Message school
+        </Link>
+      </div>
     </div>
   );
 }

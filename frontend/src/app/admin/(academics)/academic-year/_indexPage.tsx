@@ -72,7 +72,16 @@ const AcademicYear: FC<Props> = ({ academicYears }) => {
     {
       accessorKey: 'name',
       header: 'Academic Year Name',
-      cell: ({ row }) => <div>{row.getValue('name')}</div>,
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <span>{row.original.name}</span>
+          {row.original.status === 'ACTIVE' && (
+            <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-semibold text-primary">
+              Active
+            </span>
+          )}
+        </div>
+      ),
     },
     {
       accessorKey: 'startYear',

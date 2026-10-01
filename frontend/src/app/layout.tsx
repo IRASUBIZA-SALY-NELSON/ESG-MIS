@@ -15,19 +15,15 @@ import React from 'react';
 export const metadata: Metadata = {
   title: 'ESG MIS · Ecole des Sciences de Gisenyi',
   description: 'School management system of Ecole des Sciences de Gisenyi for students, teachers, parents and staff',
+  icons: {
+    icon: [{ url: '/favicon.png', type: 'image/png', sizes: '256x256' }],
+    apple: '/favicon.png',
+  },
 };
-
-// interface Props {
-//   children: React.ReactNode;
-//   modal?: React.ReactNode;
-// }
 
 const RootLayout = async ({ children, modal }: any) => {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="shortcut icon" href="/logo.png" type="image/x-icon" />
-      </head>
       <body className={` bg-[#F5FAF7]`} suppressHydrationWarning>
         <div className="bg-[#F5FAF7] w-full h-screen">
           <UserContextProvider>

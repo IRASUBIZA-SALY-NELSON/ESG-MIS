@@ -1,5 +1,6 @@
 'use client';
 import ViewReportCard from '@/components/academics/ViewReportCard';
+import TranscriptPage from '@/app/student/(academics)/report-cards/[id]/transcript/_transcript_page';
 import { DataTable } from '@/components/core/data-table';
 import MainModal from '@/components/core/modals/modal';
 import { AuthApi, baseUrl } from '@/utils/constants';
@@ -28,7 +29,8 @@ import { PDFDocument } from 'pdf-lib';
 
 import { HiCheckCircle, HiXCircle } from 'react-icons/hi';
 import { Document, Page, Text as PDFText, View, StyleSheet } from '@react-pdf/renderer';
-import TranscriptPage from '@/app/student/(academics)/report-cards/[id]/transcript/_transcript_page';
+import { downloadPerformancePdf } from '@/utils/pdf/downloadPerformancePdf';
+import { getResError } from '@/utils/fetch';
 interface Props {
   canRelease?: boolean;
 }
@@ -41,6 +43,34 @@ type ReportAction = {
   variant?: 'filled' | 'outline';
   className?: string;
 };
+
+type ValidationRow = {
+  studentName?: string;
+  className?: string;
+  needsSecondSitting?: boolean;
+  subjectMarks?: Array<{
+    courseId?: string;
+    courseName?: string;
+    marks?: number;
+    courseWeight?: number;
+    percentage?: number;
+    needsSecondSitting?: boolean;
+  }>;
+};
+
+function validationResultsOf(response: { data?: { data?: { results?: unknown } } }) {
+  const results = response.data?.data?.results;
+  if (!results || typeof results !== 'object' || Array.isArray(results)) {
+    throw new Error('The server did not return a validation report for this class and year.');
+  }
+  return results as Record<string, ValidationRow>;
+}
+
+function validationCounts(results: Record<string, ValidationRow>) {
+  const entries = Object.values(results);
+  const invalidCount = entries.filter((student) => student?.needsSecondSitting).length;
+  return { total: entries.length, invalidCount, validCount: entries.length - invalidCount };
+}
 
 const PMAdminReportCards = ({ canRelease }: Props) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -56,28 +86,27 @@ const PMAdminReportCards = ({ canRelease }: Props) => {
   const [loadingExport, setLoadingExport] = useState<boolean>(false);
   const [showExportModal, setShowExportModal] = useState<boolean>(false);
   const [showMarksExportModal, setShowMarksExportModal] = useState<boolean>(false);
-  const [selectedMarkType, setSelectedMarkType] = useState<'CAT' | 'EXAM' | ''>('CAT');
-  const [selectedMarksExportMode, setSelectedMarksExportMode] = useState<'course' | 'term-summary'>(
-    'course',
-  );
   const [marksExportFilters, setMarksExportFilters] = useState({
     academicYear: '',
     classId: '',
+    termId: '',
   });
   const [loadingMarksExport, setLoadingMarksExport] = useState<boolean>(false);
   const [showPdfFormatModal, setShowPdfFormatModal] = useState<boolean>(false);
   const [validating, setValidating] = useState<boolean>(false);
   const [generatingPDF, setGeneratingPDF] = useState<boolean>(false);
   const [generatingAllClassesPDF, setGeneratingAllClassesPDF] = useState<boolean>(false);
-  const [validationResults, setValidationResults] = useState<{ [key: string]: boolean } | null>(
+  const [validationResults, setValidationResults] = useState<Record<string, ValidationRow> | null>(
     null,
   );
-  const [validationResultspdf, setValidationResultspdf] = useState<{
-    [key: string]: boolean;
-  } | null>(null);
-  const [validationResultsAllClassespdf, setValidationResultsAllClassespdf] = useState<{
-    [key: string]: boolean;
-  } | null>(null);
+  const [validationResultspdf, setValidationResultspdf] = useState<Record<
+    string,
+    ValidationRow
+  > | null>(null);
+  const [validationResultsAllClassespdf, setValidationResultsAllClassespdf] = useState<Record<
+    string,
+    ValidationRow
+  > | null>(null);
   const [validationModalOpen, setValidationModalOpen] = useState(false);
 
   const [selectedFilters, setSelectedFilters] = useState({
@@ -117,6 +146,15 @@ const PMAdminReportCards = ({ canRelease }: Props) => {
       onMount: false,
     },
   );
+  const { data: marksExportTerms, get: fetchMarksExportTerms } = useGet<ITerm[]>(
+    marksExportFilters.academicYear
+      ? `/terms/all/academic-year/${marksExportFilters.academicYear}`
+      : undefined,
+    {
+      defaultData: [],
+      onMount: false,
+    },
+  );
 
   useEffect(() => {
     if (academicYears && selectedFilters.academicYear) {
@@ -148,7 +186,8 @@ const PMAdminReportCards = ({ canRelease }: Props) => {
   useEffect(() => {
     if (!marksExportFilters.academicYear) return;
     fetchMarksExportClasses();
-    setMarksExportFilters((prev) => ({ ...prev, classId: '' }));
+    fetchMarksExportTerms();
+    setMarksExportFilters((prev) => ({ ...prev, classId: '', termId: '' }));
   }, [marksExportFilters.academicYear]);
 
   const {
@@ -237,57 +276,38 @@ const PMAdminReportCards = ({ canRelease }: Props) => {
 
   const onExportMarks = () => {
     setError('');
+    setMarksExportFilters((prev) => ({
+      ...prev,
+      academicYear: prev.academicYear || selectedFilters.academicYear,
+      classId: selectedFilters.classId || prev.classId,
+      termId: selectedFilters.term || prev.termId,
+    }));
     setShowMarksExportModal(true);
   };
 
-  const downloadMarksExcel = async () => {
-    if (!marksExportFilters.academicYear || !selectedMarkType) {
+  const downloadMarksPdf = async () => {
+    if (!marksExportFilters.academicYear || !marksExportFilters.termId) {
       notifications.show({
-        title: 'Error',
-        message: 'Academic year and mark type are required',
+        title: 'Select term',
+        message: 'Academic year and term are required for the ranking PDF.',
         color: 'red',
       });
       return;
     }
 
     setLoadingMarksExport(true);
-
     try {
-      const academicYear = academicYears?.find(
-        (year) => year.id === marksExportFilters.academicYear,
-      );
-      const selectedClass = marksExportClasses?.find(
-        (classItem) => classItem.id === marksExportFilters.classId,
-      );
-
-      const params = new URLSearchParams({
+      await downloadPerformancePdf({
+        termId: marksExportFilters.termId,
         academicYearId: marksExportFilters.academicYear,
-        markType: selectedMarkType,
-        exportMode: selectedMarksExportMode,
+        classId: marksExportFilters.classId || null,
+        markType: 'ACADEMIC',
       });
-      if (marksExportFilters.classId) {
-        params.append('classId', marksExportFilters.classId);
-      }
-
-      const response = await AuthApi.get<Blob>(`/exporting/students/marks?${params.toString()}`, {
-        responseType: 'blob',
-      });
-
-      const contentType = response.headers?.['content-type'];
-      const blob = new Blob([response.data], {
-        type:
-          typeof contentType === 'string'
-            ? contentType
-            : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      });
-      const modeLabel = selectedMarksExportMode === 'term-summary' ? 'TermSummary' : 'Detailed';
-      const fileName = `${modeLabel}_${selectedMarkType}_${academicYear?.name ?? 'Year'}_${selectedClass?.className?.replace(/\s+/g, '_') ?? 'AllClasses'}.xlsx`;
-      saveAs(blob, fileName);
       setShowMarksExportModal(false);
     } catch (error: any) {
       notifications.show({
-        title: 'Export Failed',
-        message: error?.response?.data?.message || 'Failed to download marks. Please try again.',
+        title: 'Export failed',
+        message: getResError(error) || 'Could not generate the ranking PDF.',
         color: 'red',
       });
     } finally {
@@ -328,13 +348,18 @@ const PMAdminReportCards = ({ canRelease }: Props) => {
       });
 
       if (response.data?.success) {
-        const results = response.data.data.results;
+        const results = validationResultsOf(response);
         setValidationResults(results);
 
-        // Count valid/invalid results
-        const total = Object.keys(results).length;
-        const validCount = Object.values(results).filter(Boolean).length;
-        const invalidCount = total - validCount;
+        const { total, invalidCount } = validationCounts(results);
+        if (total === 0) {
+          notifications.show({
+            title: 'No students',
+            message: 'No students were found for the selected class and year.',
+            color: 'yellow',
+          });
+          return;
+        }
 
         // Always show notification and modal
         const notificationMessage =
@@ -528,15 +553,10 @@ const PMAdminReportCards = ({ canRelease }: Props) => {
       });
 
       if (response.data?.success) {
-        const results = response.data.data.results;
+        const results = validationResultsOf(response);
 
         // Update state for future reference
         setValidationResultspdf(results);
-
-        // Count valid/invalid results
-        const total = Object.keys(results).length;
-        const validCount = Object.values(results).filter(Boolean).length;
-        const invalidCount = total - validCount;
 
         // Generate PDF immediately using the fresh data from the response
         // Create a temporary PDF document component with the results
@@ -678,15 +698,10 @@ const PMAdminReportCards = ({ canRelease }: Props) => {
       });
 
       if (response.data?.success) {
-        const results = response.data.data.results;
+        const results = validationResultsOf(response);
 
         // Update state for future reference
         setValidationResultsAllClassespdf(results);
-
-        // Count valid/invalid results
-        const total = Object.keys(results).length;
-        const validCount = Object.values(results).filter(Boolean).length;
-        const invalidCount = total - validCount;
 
         // Generate PDF immediately using the fresh data from the response
         // Create a temporary PDF document component with the results
@@ -815,38 +830,26 @@ const PMAdminReportCards = ({ canRelease }: Props) => {
   // Export as Excel (existing functionality)
   const onExportExcel = async () => {
     setShowExportModal(false);
+    if (!selectedFilters.academicYear || !selectedFilters.term) {
+      notifications.show({
+        title: 'Select a term',
+        message: 'Choose academic year and term, then export the ranking PDF.',
+        color: 'red',
+      });
+      return;
+    }
     try {
       setLoadingExport(true);
-      const params = new URLSearchParams({ academicYearId: selectedFilters.academicYear });
-      if (selectedFilters.classId) params.append('classId', selectedFilters.classId);
-      const res = await fetch(
-        `${baseUrl}/api/v1/exporting/students/report-cards?${params.toString()}`,
-        {
-          headers: { Authorization: `Bearer ${getCookie('token')}` },
-        },
-      );
-      if (!res.ok) {
-        throw new Error('Server error while generating report cards');
-      }
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      const yearName =
-        academicYears?.find((y) => y.id === selectedFilters.academicYear)?.name || 'Year';
-      const clsName = classes?.find((c) => c.id === selectedFilters.classId)?.className;
-      link.download = `ReportCards_${yearName}${clsName ? '_' + clsName : ''}.xlsx`;
-      link.click();
-      link.remove();
-      notifications.show({
-        title: 'Success',
-        message: 'Report cards exported successfully as Excel',
-        color: 'green',
+      await downloadPerformancePdf({
+        termId: selectedFilters.term,
+        academicYearId: selectedFilters.academicYear,
+        classId: selectedFilters.classId || null,
+        markType: 'ACADEMIC',
       });
     } catch (err) {
       notifications.show({
-        title: 'Error',
-        message: 'There has been an error in generating the excel, you may please reload!',
+        title: 'Export failed',
+        message: getResError(err) || 'Could not generate the ranking PDF.',
         color: 'red',
       });
     } finally {
@@ -890,7 +893,10 @@ const PMAdminReportCards = ({ canRelease }: Props) => {
         termId: selectedTerm.id,
       },
     });
-    const allStudents: Student[] = studentsRes.data.data || [];
+    const rows = studentsRes.data?.data || [];
+    const allStudents: Student[] = (Array.isArray(rows) ? rows : [])
+      .map((row: any) => (row?.student?.id ? row.student : row))
+      .filter((student: Student) => student?.id);
 
     if (allStudents.length === 0) {
       throw new Error('No students found for the selected class and term');
@@ -1237,7 +1243,7 @@ const PMAdminReportCards = ({ canRelease }: Props) => {
         centered
       >
         <div className="space-y-4">
-          <Text>Select export filters, layout and mark type for the workbook.</Text>
+          <Text>Download a ranking PDF of student names and marks.</Text>
           <Select
             label="Academic Year"
             data={academicYears?.map((year) => ({ label: year.name, value: year.id })) || []}
@@ -1248,6 +1254,22 @@ const PMAdminReportCards = ({ canRelease }: Props) => {
             placeholder="Choose academic year"
             searchable
             required
+          />
+          <Select
+            label="Term"
+            data={
+              marksExportTerms?.map((term) => ({
+                label: term.name?.replace(/_/g, ' ') ?? term.name,
+                value: term.id,
+              })) || []
+            }
+            value={marksExportFilters.termId}
+            onChange={(value) =>
+              setMarksExportFilters((prev) => ({ ...prev, termId: value ?? '' }))
+            }
+            placeholder="Choose term"
+            required
+            disabled={!marksExportFilters.academicYear}
           />
           <Select
             label="Class (optional)"
@@ -1266,27 +1288,6 @@ const PMAdminReportCards = ({ canRelease }: Props) => {
             clearable
             disabled={!marksExportFilters.academicYear}
           />
-          <Select
-            label="Export Layout"
-            data={[
-              { label: 'Detailed layout', value: 'course' },
-              { label: 'Term summary', value: 'term-summary' },
-            ]}
-            value={selectedMarksExportMode}
-            onChange={(value) => setSelectedMarksExportMode(value as 'course' | 'term-summary')}
-            placeholder="Choose export layout"
-            required
-          />
-          <Select
-            label="Mark Type"
-            data={[
-              { label: 'CAT', value: 'CAT' },
-              { label: 'EXAM', value: 'EXAM' },
-            ]}
-            value={selectedMarkType}
-            onChange={(value) => setSelectedMarkType(value as 'CAT' | 'EXAM' | '')}
-            placeholder="Choose mark type"
-          />
           <div className="flex justify-end gap-2">
             <Button variant="default" onClick={() => setShowMarksExportModal(false)}>
               Cancel
@@ -1294,12 +1295,10 @@ const PMAdminReportCards = ({ canRelease }: Props) => {
             <Button
               className="bg-mainPurple text-white"
               loading={loadingMarksExport}
-              onClick={downloadMarksExcel}
-              disabled={
-                !marksExportFilters.academicYear || !selectedMarksExportMode || !selectedMarkType
-              }
+              onClick={downloadMarksPdf}
+              disabled={!marksExportFilters.academicYear || !marksExportFilters.termId}
             >
-              Download Excel
+              Download PDF
             </Button>
           </div>
         </div>

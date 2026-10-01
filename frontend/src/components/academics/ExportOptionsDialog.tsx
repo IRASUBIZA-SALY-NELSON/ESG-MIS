@@ -1,5 +1,5 @@
 import { Button, Modal, Group, Text } from '@mantine/core';
-import { BsFileExcel, BsFilePdf } from 'react-icons/bs';
+import { BsFilePdf } from 'react-icons/bs';
 
 type ExportType = 'pdf' | 'excel' | null;
 
@@ -17,8 +17,8 @@ export function ExportOptionsDialog({
   loading,
 }: ExportOptionsDialogProps) {
   return (
-    <Modal opened={opened} onClose={onClose} title="Export Report Cards" centered>
-      <Text mb="md">Select export format:</Text>
+    <Modal opened={opened} onClose={onClose} title="Export reports" centered>
+      <Text mb="md">Both downloads are PDFs.</Text>
       <Group justify="center" gap="md">
         <Button
           leftSection={<BsFilePdf size={20} />}
@@ -26,19 +26,19 @@ export function ExportOptionsDialog({
           loading={loading}
           disabled={loading}
           variant="outline"
-          color="red"
+          color="dark"
         >
-          Export as PDF
+          Report cards
         </Button>
         <Button
-          leftSection={<BsFileExcel size={20} />}
+          leftSection={<BsFilePdf size={20} />}
           onClick={() => onSelect('excel')}
           loading={loading}
           disabled={loading}
           variant="outline"
-          color="green"
+          color="dark"
         >
-          Export as Excel
+          Class ranking
         </Button>
       </Group>
     </Modal>

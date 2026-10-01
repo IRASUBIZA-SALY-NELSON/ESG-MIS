@@ -36,27 +36,35 @@ const AdminDashboard = () => {
       });
   };
   useEffect(() => {
-    const fetch = async () => {
-      const years = await getAcademicYears();
-      const currentYear = getCurrentYear(years.data);
+    const loadDashboard = async () => {
+      try {
+        const years = await getAcademicYears();
+        const currentYear = getCurrentYear(years?.data);
 
-      if (!currentYear) {
-        console.warn('No active academic year found.');
-        return;
-      }
+        if (!currentYear) {
+          console.warn('No active academic year found.');
+          setLoading(false);
+          return;
+        }
 
-      const termsResponse = await getTermsInYear(currentYear.id);
-      const terms = termsResponse.data ?? [];
+        const termsResponse = await getTermsInYear(currentYear.id);
+        const terms = termsResponse?.data ?? [];
 
-      terms.sort((a: any, b: any) => +new Date(b.createdAt) - +new Date(a.createdAt));
-      setThisYearTerms(terms);
-      if (terms.length > 0) {
-        const secondLastTermId = terms.length >= 2 ? terms[1].id : terms[0].id;
-        getDashboard(secondLastTermId);
+        terms.sort((a: any, b: any) => +new Date(b.createdAt) - +new Date(a.createdAt));
+        setThisYearTerms(terms);
+        if (terms.length > 0) {
+          const secondLastTermId = terms.length >= 2 ? terms[1].id : terms[0].id;
+          getDashboard(secondLastTermId);
+          return;
+        }
+        setLoading(false);
+      } catch (error) {
+        console.error(error);
+        setLoading(false);
       }
     };
 
-    fetch();
+    loadDashboard();
   }, []);
 
   const responsive = {
@@ -120,7 +128,8 @@ const AdminDashboard = () => {
   return (
     <div className="relative h-full text-sm">
       <p className="text-[15px] font-semibold my-2">
-        {getGreeting()} <span className="font-extrabold">{me ? me.username : ' '}</span>
+        {getGreeting()}{' '}
+        <span className="font-extrabold">{me?.firstName || me?.username || ' '}</span>
         <span className="ml-2 text-xs font-medium text-gray-500">IT Manager</span>
       </p>
       <Carousel

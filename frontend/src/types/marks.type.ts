@@ -91,3 +91,11 @@ export interface CasesCategory {
   description: string;
   marks: number;
 }
+
+/** Payload for the official report-card PDF (students, staff, parents). */
+export interface ReportCardDocument {
+  reportCard: IReportCard;
+  terms: ITerm[];
+  dsMarks: DsReport;
+  studentClassTermData: unknown;
+}

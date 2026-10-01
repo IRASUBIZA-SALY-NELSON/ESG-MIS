@@ -97,6 +97,6 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    '/((?!api|auth/reset-password|_next/static|public|_next/image|favicon.ico|images|logo.svg|logo.png|logo.png|favicon.svg|favicon.png).*)',
+    '/((?!api|auth/reset-password|_next/static|public|_next/image|favicon.ico|icon.png|apple-icon.png|images|logo.svg|logo.png|favicon.svg|favicon.png|pdf\\.worker\\.min\\.mjs).*)',
   ],
 };

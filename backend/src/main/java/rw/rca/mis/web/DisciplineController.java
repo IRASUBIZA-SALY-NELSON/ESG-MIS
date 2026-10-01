@@ -12,16 +12,31 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import rw.rca.mis.common.ApiResponse;
+import rw.rca.mis.repo.ParentLinkRepository;
 import rw.rca.mis.service.DisciplineService;
+import rw.rca.mis.service.Lookup;
+import rw.rca.mis.service.ReportCardDocumentService;
 
 @RestController
 @RequestMapping("/api/v1")
 public class DisciplineController {
   private final DisciplineService discipline;
+  private final ReportCardDocumentService documents;
+  private final Lookup lookup;
+  private final ParentLinkRepository parentLinks;
 
-  public DisciplineController(DisciplineService discipline) {
+  public DisciplineController(
+      DisciplineService discipline,
+      ReportCardDocumentService documents,
+      Lookup lookup,
+      ParentLinkRepository parentLinks) {
     this.discipline = discipline;
+    this.documents = documents;
+    this.lookup = lookup;
+    this.parentLinks = parentLinks;
   }
 
   @GetMapping("/case-categories/all")
@@ -45,9 +60,34 @@ public class DisciplineController {
     return ApiResponse.ok("Deleted", id);
   }
 
-  @GetMapping({"/deductions/student/{id}", "/deductions/ds-marks/by-studentId"})
-  public ApiResponse<?> studentDeductions(@PathVariable(required = false) UUID id, @RequestParam(required = false) UUID studentId) {
-    return ApiResponse.ok(discipline.deductionsForStudent(id == null ? studentId : id));
+  @GetMapping("/deductions/student/{id}")
+  public ApiResponse<?> studentDeductions(@PathVariable UUID id) {
+    return ApiResponse.ok(discipline.deductionsForStudent(id));
+  }
+
+  @GetMapping("/deductions/ds-marks/loggedIn-student")
+  public ApiResponse<?> loggedInDsMarks(@RequestParam(required = false) UUID academicYearId) {
+    return ApiResponse.ok(documents.dsReport(lookup.currentUser().getId(), academicYearId));
+  }
+
+  @GetMapping("/deductions/ds-marks/by-studentId")
+  public ApiResponse<?> dsMarksByStudent(
+      @RequestParam UUID studentId, @RequestParam(required = false) UUID academicYearId) {
+    return ApiResponse.ok(documents.dsReport(studentId, academicYearId));
+  }
+
+  @GetMapping("/deductions/ds-marks/by-parent")
+  public ApiResponse<?> dsMarksByParent(
+      @RequestParam String token,
+      @RequestParam UUID studentId,
+      @RequestParam(required = false) UUID academicYearId) {
+    if (token.isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "token and studentId are required");
+    }
+    if (!parentLinks.existsByReportCardTokenAndStudentId(token, studentId)) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid report card token");
+    }
+    return ApiResponse.ok(documents.dsReport(studentId, academicYearId));
   }
 
   @GetMapping({"/deductions/academic-year/term/student", "/deductions/academic-year/term/staff"})

@@ -1,73 +1,48 @@
 'use client';
-import { IClass } from '@/types/class.type';
-import { AuthApi } from '@/utils/constants';
-import { getResError } from '@/utils/fetch';
-import { Button, MultiSelect, Select } from '@mantine/core';
+import { Button } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import React, { useState } from 'react';
-import { AiOutlineReload } from 'react-icons/ai';
-import { BiCheck } from 'react-icons/bi';
-import InputWrapper from '../core/Input/InputWrapper';
-import AsyncMultiSelect from '../core/selects/AsyncMultiSelect';
-import { FaLock, FaLockOpen, FaUnlockAlt } from 'react-icons/fa';
-import { IAcademicYear, ITerm } from '@/types/other.type';
 import AsyncSelect from '../core/selects/AsyncSelect';
+import { downloadPerformancePdf } from '@/utils/pdf/downloadPerformancePdf';
+import { getResError } from '@/utils/fetch';
+import { BsFilePdf } from 'react-icons/bs';
 
 interface Props {
   onClose: () => void;
   academicYearId: string;
-  data?: any;
+  data?: { classId?: string | null };
 }
 
 const ExportPerformance = ({ onClose, data, academicYearId }: Props) => {
   const [termId, setTermId] = useState('');
   const [yearId, setYearId] = useState(academicYearId);
-  const [isLoading, setLoading] = useState<boolean>(false);
+  const [isLoading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('academic');
 
-  const handleExportMarks = async (e: any) => {
+  const handleExport = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    setLoading(true);
-
     if (!termId) {
       notifications.show({
-        title: 'Please select a term',
-        message: 'Please select a term',
+        title: 'Select a term',
+        message: 'Choose the term to include in the ranking report.',
         color: 'red',
       });
-      setLoading(false);
       return;
     }
 
+    setLoading(true);
     try {
-      const response = await AuthApi.get(
-        `/exporting/students/performance/?termId=${termId}&academicYearId=${yearId}${
-          data.classId ? `&classId=${data.classId}` : ''
-        }&markType=${activeTab?.toUpperCase()}`,
-        {
-          responseType: 'blob',
-        },
-      );
-
-      const blob = new Blob([response.data], { type: 'application/vnd.ms-excel' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-
-      const filename = `performance_export_${Date.now()}.xlsx`;
-      link.setAttribute('download', filename);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-
+      await downloadPerformancePdf({
+        termId,
+        academicYearId: yearId,
+        classId: data?.classId || null,
+        markType: activeTab.toUpperCase(),
+      });
       onClose();
     } catch (err) {
-      const resErr = getResError(err);
       notifications.show({
-        title: 'Failed to export marks',
-        message: resErr,
+        title: 'Export failed',
+        message: getResError(err) || 'Could not generate the ranking PDF.',
         color: 'red',
       });
     } finally {
@@ -76,11 +51,12 @@ const ExportPerformance = ({ onClose, data, academicYearId }: Props) => {
   };
 
   return (
-    <form
-      className=" w-full flex flex-col gap-y-3 p-4 md:p-6 lg:p-12"
-      onSubmit={(e) => handleExportMarks(e)}
-    >
-      <div className="flex flex-col md:flex-row justify-start gap-y-2">
+    <form className=" w-full flex flex-col gap-y-3 p-4 md:p-6" onSubmit={handleExport}>
+      <p className="text-sm text-gray-600 text-center">
+        Download a ranked PDF of student names and marks
+        {data?.classId ? ' for this class' : ' for every class'}.
+      </p>
+      <div className="flex flex-col md:flex-row justify-start gap-y-2 gap-x-4">
         <div className="flex justify-between items-center gap-x-2">
           <span className=" font-medium text-sm">Academic Year</span>
           <AsyncSelect
@@ -90,7 +66,7 @@ const ExportPerformance = ({ onClose, data, academicYearId }: Props) => {
             onChange={(e: any) => {
               setYearId(e);
             }}
-            disabled={data.classId}
+            disabled={!!data?.classId}
             placeholder="Select academic year"
           />
         </div>
@@ -138,11 +114,11 @@ const ExportPerformance = ({ onClose, data, academicYearId }: Props) => {
           variant="filled"
           loading={isLoading}
           className="flex mt-4 gap-3"
-          // w={60}
           mx={'auto'}
           type="submit"
         >
-          Export
+          <BsFilePdf className="mr-2" />
+          Download PDF
         </Button>
       </div>
     </form>

@@ -98,6 +98,10 @@ const CheckIcon = () => (
   />
 );
 
+const SittingBox = ({ checked }: { checked: boolean }) => (
+  <View style={tw('px-3 py-1.5 border-2 relative')}>{checked ? <CheckIcon /> : null}</View>
+);
+
 export default ({
   info,
   terms,
@@ -159,8 +163,8 @@ export default ({
       subject="Report Card"
       title={`${info?.studentInfo?.firstName} ${info?.studentInfo?.lastName} Report Card`}
     >
-      <Page size={{ width: 800, height: 1020 }} style={styles.page}>
-        <View style={[styles.container, tw('h-full relative')]}>
+      <Page size={{ width: 800, height: 800 }} style={styles.page} wrap={false}>
+        <View style={[styles.container, { position: 'relative', height: '100%' }]}>
           <View style={styles.header}>
             <View style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               <Text style={[headerTextTw]}>REPUBLIC OF RWANDA</Text>
@@ -168,7 +172,7 @@ export default ({
               <Text style={[headerTextTw]}>ECOLE DES SCIENCES DE GISENYI</Text>
               <Image style={{ width: 80 }} src={rcaLogo} />
               <Text style={[midTextTw]}>Telephone:(+250)788548000</Text>
-              <Text style={[midTextTw]}>Email: papiasni@gmail.com</Text>
+              <Text style={[midTextTw]}>Email: salynelson@gmail.com</Text>
             </View>
             <View
               style={{
@@ -297,7 +301,7 @@ export default ({
                       {isExamReleased && dsMark()}
                     </Text>
                     <Text
-                      style={[headerTextTw, tw('text-center border-l bg-[#b3b3b3]  w-full py-1')]}
+                      style={[headerTextTw, tw('text-center border-l bg-[#b3b3b3] w-full py-1')]}
                     >
                       40
                     </Text>
@@ -313,13 +317,13 @@ export default ({
                       (dsMarks?.secondTermMarks ?? 0) +
                       (dsMarks?.thirdTermMarks ?? 0)}
                 </Text>
-                <Text style={[headerTextTw, tw('text-center w-full bg-[#b3b3b3]  py-1')]}>120</Text>
+                <Text style={[headerTextTw, tw('text-center w-full bg-[#b3b3b3] py-1')]}>120</Text>
                 <Text style={[headerTextTw, tw('text-center border-l w-full py-1')]}></Text>
               </View>
               {/* Second Sitting */}
               <View style={tw(`flex flex-row ${getW(2.5)} border-l border-black`)}>
                 <Text style={[headerTextTw, tw('text-center w-full py-1')]}></Text>
-                <Text style={[headerTextTw, tw('text-center w-full bg-[#b3b3b3]  py-1')]}></Text>
+                <Text style={[headerTextTw, tw('text-center w-full bg-[#b3b3b3] py-1')]}></Text>
                 <Text style={[headerTextTw, tw('text-center border-l w-full py-1')]}></Text>
               </View>
               <View style={tw(`flex flex-row ${getW(1.5)} border-l py-2.5 border-black`)}></View>
@@ -386,7 +390,7 @@ export default ({
                         <Text
                           style={[
                             headerTextTw,
-                            tw('text-center bg-[#b3b3b3]  border-l w-full py-1'),
+                            tw('text-center bg-[#b3b3b3] border-l w-full py-1'),
                           ]}
                         >
                           {isCatReleased && catMarks?.weight}
@@ -396,7 +400,7 @@ export default ({
                           style={[
                             headerTextTw,
                             tw(
-                              `text-center border-l w-full py-1  ${
+                              `text-center border-l w-full py-1 ${
                                 !isExamReleased
                                   ? 'bg-[#edebeb]'
                                   : isExamInRed
@@ -411,7 +415,7 @@ export default ({
                         <Text
                           style={[
                             headerTextTw,
-                            tw('text-center bg-[#b3b3b3]  border-l w-full py-1'),
+                            tw('text-center bg-[#b3b3b3] border-l w-full py-1'),
                           ]}
                         >
                           {isExamReleased && examMarks?.weight}
@@ -421,7 +425,7 @@ export default ({
                           style={[
                             headerTextTw,
                             tw(
-                              `text-center border-l w-full py-1 ${!allReleased && 'bg-[#edebeb]'}`,
+                              `text-center border-l w-full py-1 ${allReleased ? '' : 'bg-[#edebeb]'}`.trim(),
                             ),
                           ]}
                         >
@@ -432,7 +436,7 @@ export default ({
                         <Text
                           style={[
                             headerTextTw,
-                            tw('text-center bg-[#b3b3b3]  border-l w-full py-1'),
+                            tw('text-center bg-[#b3b3b3] border-l w-full py-1'),
                           ]}
                         >
                           {allAvailable && allReleased ? catMarks.weight + examMarks.weight : ''}
@@ -453,7 +457,7 @@ export default ({
                       {isYearReleased && totalCourseMarks?.marks?.toFixed(1)}
                     </Text>
                     <Text
-                      style={[headerTextTw, tw('text-center bg-[#b3b3b3]  border-l w-full py-1')]}
+                      style={[headerTextTw, tw('text-center bg-[#b3b3b3] border-l w-full py-1')]}
                     >
                       {isYearReleased && totalCourseMarks?.weight}
                     </Text>
@@ -479,7 +483,7 @@ export default ({
                         <Text
                           style={[
                             headerTextTw,
-                            tw('text-center bg-[#b3b3b3]  border-l w-full py-1'),
+                            tw('text-center bg-[#b3b3b3] border-l w-full py-1'),
                           ]}
                         >
                           {isYearReleased &&
@@ -548,7 +552,7 @@ export default ({
                         <Text
                           style={[
                             headerTextTw,
-                            tw('text-center bg-[#b3b3b3]  border-l w-full py-1'),
+                            tw('text-center bg-[#b3b3b3] border-l w-full py-1'),
                           ]}
                         >
                           -
@@ -587,7 +591,7 @@ export default ({
                       {isCatReleased && totalMarks?.CAT?.marks?.toFixed(1)}
                     </Text>
                     <Text
-                      style={[headerTextTw, tw('text-center bg-[#b3b3b3]  border-l w-full py-1')]}
+                      style={[headerTextTw, tw('text-center bg-[#b3b3b3] border-l w-full py-1')]}
                     >
                       {isCatReleased && totalMarks?.CAT?.weight}
                     </Text>
@@ -596,7 +600,7 @@ export default ({
                       {isExamReleased && totalMarks?.EXAM?.marks?.toFixed(1)}
                     </Text>
                     <Text
-                      style={[headerTextTw, tw('text-center bg-[#b3b3b3]  border-l w-full py-1')]}
+                      style={[headerTextTw, tw('text-center bg-[#b3b3b3] border-l w-full py-1')]}
                     >
                       {isExamReleased && totalMarks?.EXAM?.weight}
                     </Text>
@@ -605,7 +609,7 @@ export default ({
                       {allReleased && totalMarks?.TOT?.marks?.toFixed(1)}
                     </Text>
                     <Text
-                      style={[headerTextTw, tw('text-center bg-[#b3b3b3]  border-l w-full py-1')]}
+                      style={[headerTextTw, tw('text-center bg-[#b3b3b3] border-l w-full py-1')]}
                     >
                       {allReleased && totalMarks?.TOT?.weight}
                     </Text>
@@ -617,7 +621,7 @@ export default ({
                 <Text style={[headerTextTw, tw('text-center w-full py-1')]}>
                   {isYearReleased && yearTotals.marks?.toFixed(1)}
                 </Text>
-                <Text style={[headerTextTw, tw('text-center bg-[#b3b3b3]  border-l w-full py-1')]}>
+                <Text style={[headerTextTw, tw('text-center bg-[#b3b3b3] border-l w-full py-1')]}>
                   {isYearReleased && yearTotals.weight}
                 </Text>
                 <Text style={[headerTextTw, tw('text-center border-l w-full py-1')]}></Text>
@@ -626,7 +630,7 @@ export default ({
               <View style={tw(`flex flex-row ${getW(2.5)} border-l border-black`)}>
                 <Text style={[headerTextTw, tw('text-center w-full py-1')]}></Text>
                 <Text
-                  style={[headerTextTw, tw('text-center bg-[#b3b3b3]  border-l w-full py-1')]}
+                  style={[headerTextTw, tw('text-center bg-[#b3b3b3] border-l w-full py-1')]}
                 ></Text>
                 <Text style={[headerTextTw, tw('text-center border-l w-full py-1')]}></Text>
               </View>
@@ -723,88 +727,99 @@ export default ({
             </View>
           </View>
           {/* footer + remarks + signature */}
-          <View style={tw('flex-col w-full justify-between mt-4 p-3')}>
+          <View style={tw('flex-col w-full mt-4 p-3')}>
             <Text style={[headerTextTw, tw('underline')]}>Decision of the deliberation</Text>
-            <View style={tw('flex-row w-full gap-x-8 justify-between')}>
-              {/* first sitting */}
-              <View style={tw('flex flex-col w-1/3')}>
-                <Text style={[headerTextTw, tw('underline mt-5')]}>1. FIRST SITTING</Text>
-                <View style={tw('flex flex-col gap-y-1 mt-4')}>
-                  <View style={tw('flex flex-row items-center w-full justify-between pr-11')}>
-                    <Text style={[headerTextTw, tw('text-left')]}>Promoted </Text>
-                    <View style={tw('px-3 py-1.5 border-2 relative')}>
-                      {isYearReleased &&
-                        getSittingStatus(Number(yearPercentage)) === 'PROMOTED' && <CheckIcon />}
-                    </View>
-                  </View>
-                  <View style={tw('flex flex-row items-center w-full justify-between pr-11')}>
-                    <Text style={[headerTextTw, tw('text-left')]}>Proposed to Second Sitting </Text>
-                    <View style={tw('px-3 py-1.5 border-2 relative')}>
-                      {isYearReleased && getSittingStatus(Number(yearPercentage)) === 'SITTING' && (
-                        <CheckIcon />
-                      )}
-                    </View>
-                  </View>
-                  <View style={tw('flex flex-row items-center w-full justify-between pr-11')}>
-                    <Text style={[headerTextTw, tw('text-left')]}>Proposed to Repeat</Text>
-                    <View style={tw('px-3 py-1.5 border-2 relative')}>
-                      {isYearReleased &&
-                        getSittingStatus(Number(yearPercentage)) === 'REPEATING' && <CheckIcon />}
-                    </View>
-                  </View>
-                </View>
+            <View style={tw('flex-row w-full mt-5')}>
+              <Text style={[headerTextTw, tw('underline w-1/3')]}>1. FIRST SITTING</Text>
+              <Text style={[headerTextTw, tw('underline w-1/3')]}>2. SECOND SITTING</Text>
+              <View style={tw('w-1/3')} />
+            </View>
+            <View style={tw('flex-row w-full items-center mt-4')}>
+              <View style={tw('flex-row items-center justify-between w-1/3 pr-6')}>
+                <Text style={headerTextTw}>Promoted</Text>
+                <SittingBox
+                  checked={
+                    isYearReleased && getSittingStatus(Number(yearPercentage)) === 'PROMOTED'
+                  }
+                />
               </View>
-              {/* 2nd sitting */}
-              <View style={tw('flex flex-col w-1/3')}>
-                <Text style={[headerTextTw, tw('underline mt-5')]}>2. SECOND SITTING</Text>
-                <View style={tw('flex flex-col gap-y-1 mt-4')}>
-                  <View style={tw('flex flex-row items-center w-full justify-between pr-11')}>
-                    <Text style={[headerTextTw, tw('text-left')]}>Promoted </Text>
-                    <View style={tw('px-3 py-1.5 border-2 relative')}>
-                      {isYearReleased &&
-                        getSittingStatus(Number(yearPercentage)) === 'SECOND_SITTING_PROMOTED' && (
-                          <CheckIcon />
-                        )}
-                    </View>
-                  </View>
-                  <View style={tw('flex flex-row items-center w-full justify-between pr-11')}>
-                    <Text style={[headerTextTw, tw('text-left')]}>Proposed to Repeat</Text>
-                    <View style={tw('px-3 py-1.5 border-2 relative')}>
-                      {isYearReleased &&
-                        getSittingStatus(Number(yearPercentage)) === 'SECOND_SITTING_REPEAT' && (
-                          <CheckIcon />
-                        )}
-                    </View>
-                  </View>
-                  <View style={tw('flex flex-row items-center w-full justify-between pr-11')}>
-                    <Text style={[headerTextTw, tw('text-left')]}>Excluded</Text>
-                    <View style={tw('px-3 py-1.5 border-2 relative')}>
-                      {isYearReleased &&
-                        getSittingStatus(Number(yearPercentage)) === 'SECOND_SITTING_EXCLUDED' && (
-                          <CheckIcon />
-                        )}
-                    </View>
-                  </View>
-                </View>
+              <View
+                style={[tw('flex-row items-center justify-between w-1/3'), { paddingRight: 40 }]}
+              >
+                <Text style={headerTextTw}>Promoted</Text>
+                <SittingBox
+                  checked={
+                    isYearReleased &&
+                    getSittingStatus(Number(yearPercentage)) === 'SECOND_SITTING_PROMOTED'
+                  }
+                />
               </View>
-              <View style={tw('flex flex-col w-1/3 pt-24 gap-y-2')}>
-                <Text style={[headerTextTw]}>
-                  Done at Rubavu
-                  {/* {new Date(studentClassTerm?.term?.endDate).toLocaleDateString()} */}
-                </Text>
-                <Text style={[headerTextTw]}>The Principal</Text>
-                <Text style={[headerTextTw]}>Signature and Stamp</Text>
+              <View style={[tw('w-1/3 justify-center'), { paddingLeft: 46 }]}>
+                <Text style={headerTextTw}>Done at Rubavu</Text>
               </View>
-              u
+            </View>
+            <View style={tw('flex-row w-full items-center mt-1')}>
+              <View style={tw('flex-row items-center justify-between w-1/3 pr-6')}>
+                <Text style={headerTextTw}>Proposed to Second Sitting</Text>
+                <SittingBox
+                  checked={
+                    isYearReleased && getSittingStatus(Number(yearPercentage)) === 'SITTING'
+                  }
+                />
+              </View>
+              <View
+                style={[tw('flex-row items-center justify-between w-1/3'), { paddingRight: 40 }]}
+              >
+                <Text style={headerTextTw}>Proposed to Repeat</Text>
+                <SittingBox
+                  checked={
+                    isYearReleased &&
+                    getSittingStatus(Number(yearPercentage)) === 'SECOND_SITTING_REPEAT'
+                  }
+                />
+              </View>
+              <View style={[tw('w-1/3 justify-center'), { paddingLeft: 46 }]}>
+                <Text style={headerTextTw}>The Headmaster</Text>
+              </View>
+            </View>
+            <View style={tw('flex-row w-full items-center mt-1')}>
+              <View style={tw('flex-row items-center justify-between w-1/3 pr-6')}>
+                <Text style={headerTextTw}>Proposed to Repeat</Text>
+                <SittingBox
+                  checked={
+                    isYearReleased && getSittingStatus(Number(yearPercentage)) === 'REPEATING'
+                  }
+                />
+              </View>
+              <View
+                style={[tw('flex-row items-center justify-between w-1/3'), { paddingRight: 40 }]}
+              >
+                <Text style={headerTextTw}>Excluded</Text>
+                <SittingBox
+                  checked={
+                    isYearReleased &&
+                    getSittingStatus(Number(yearPercentage)) === 'SECOND_SITTING_EXCLUDED'
+                  }
+                />
+              </View>
+              <View style={[tw('w-1/3 justify-center'), { paddingLeft: 46 }]}>
+                <Text style={headerTextTw}>Signature and Stamp</Text>
+              </View>
             </View>
           </View>
-          {/* QrCode */}
           {qrCodeImageUrl && (
-            <View style={tw('flex-col-reverse w-full items-end mt-4 absolute right-2 bottom-2 ')}>
-              <Text style={[headerTextTw, tw('text-right')]}>
-                Scan QR Code for verification & more details
+            <View
+              style={{
+                position: 'absolute',
+                right: 14,
+                bottom: 8,
+                alignItems: 'flex-end',
+              }}
+            >
+              <Image style={{ width: 72, height: 72 }} src={qrCodeImageUrl} />
+              <Text style={[headerTextTw, { marginTop: 2, textAlign: 'right' }]}>
+                Scanfor verification & more details
               </Text>
-              <Image style={{ width: 100, height: 100 }} src={qrCodeImageUrl} />
             </View>
           )}
         </View>

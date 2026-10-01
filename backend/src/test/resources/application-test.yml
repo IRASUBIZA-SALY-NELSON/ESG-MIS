@@ -1,4 +1,6 @@
 spring:
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
   datasource:
     url: jdbc:h2:mem:esg_test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
@@ -11,10 +13,8 @@ spring:
   mail:
     host: localhost
     port: 3025
-    username: test
-    password: test
-  config:
-    import: optional:file:./secrets.properties
+    username:
+    password:
 
 app:
   jwt:

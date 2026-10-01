@@ -85,6 +85,13 @@ public class PeopleService {
     return people.findAll();
   }
 
+  public List<Person> searchUsers(String query) {
+    return everyone().stream()
+        .filter(person -> matchesUser(person, query))
+        .sorted(Comparator.comparing(Person::getFirstName, Comparator.nullsLast(String::compareToIgnoreCase)))
+        .toList();
+  }
+
   public List<Person> searchStudents(String academicYearId, String classId, String query) {
     return byRole("STUDENT").stream()
         .filter(student -> classId == null || classId.isBlank() || (student.getCurrentClass() != null && classId.equals(student.getCurrentClass().getId().toString())))
@@ -225,6 +232,32 @@ public class PeopleService {
     return placements.findBySchoolClassIdAndTermId(classId, termId);
   }
 
+  /** Students placed in the class for the term, or the class roster when no placement rows exist. */
+  public List<Person> studentsForClassTerm(UUID classId, UUID termId) {
+    List<Person> placed =
+        placements.findBySchoolClassIdAndTermId(classId, termId).stream()
+            .map(StudentClassTerm::getStudent)
+            .filter(student -> student != null)
+            .distinct()
+            .sorted(BY_NAME)
+            .toList();
+    if (!placed.isEmpty()) {
+      return placed;
+    }
+    return studentsInClass(classId);
+  }
+
+  public List<Person> studentsInClass(UUID classId) {
+    return people.findByCurrentClassIdAndRoleName(classId, "STUDENT").stream()
+        .filter(student -> !"ALUMNI".equalsIgnoreCase(student.getStudentStatus()))
+        .sorted(BY_NAME)
+        .toList();
+  }
+
+  private static final Comparator<Person> BY_NAME =
+      Comparator.comparing(Person::getFirstName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
+          .thenComparing(Person::getLastName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
+
   public List<TeacherAssignment> teacherCourses(UUID teacherId) {
     return assignments.findByTeacherId(teacherId);
   }
@@ -250,6 +283,7 @@ public class PeopleService {
     set(text(body, "lastName"), person::setLastName);
     set(text(body, "email"), person::setEmail);
     set(text(body, "username"), person::setUsername);
+    set(text(body, "accountStatus"), person::setStatus);
     set(text(body, "phoneNumber", "phonenumber", "phone"), person::setPhoneNumber);
     set(text(body, "nationalId", "national_id"), person::setNationalId);
     String gender = text(body, "gender");
@@ -263,11 +297,29 @@ public class PeopleService {
   }
 
   private boolean matches(Person student, String query) {
+    return matchesUser(student, query);
+  }
+
+  private boolean matchesUser(Person person, String query) {
     if (query == null || query.isBlank()) {
       return true;
     }
-    String haystack = (student.getFirstName() + " " + student.getLastName() + " " + student.getEmail()).toLowerCase(Locale.ROOT);
-    return haystack.contains(query.toLowerCase(Locale.ROOT));
+    String haystack =
+        (nullToEmpty(person.getFirstName())
+                + " "
+                + nullToEmpty(person.getLastName())
+                + " "
+                + nullToEmpty(person.getEmail())
+                + " "
+                + nullToEmpty(person.getUsername())
+                + " "
+                + nullToEmpty(person.getPhoneNumber()))
+            .toLowerCase(Locale.ROOT);
+    return haystack.contains(query.trim().toLowerCase(Locale.ROOT));
+  }
+
+  private String nullToEmpty(String value) {
+    return value == null ? "" : value;
   }
 
   private String text(Map<String, Object> body, String... keys) {

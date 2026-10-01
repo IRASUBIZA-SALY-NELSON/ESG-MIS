@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Verify Email - RCAMIS',
+  title: 'Verify Email - ESG',
   description: 'verify your email',
 };
 

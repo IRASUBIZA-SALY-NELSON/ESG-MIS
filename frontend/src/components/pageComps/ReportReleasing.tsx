@@ -1,13 +1,14 @@
 import { ITerm } from '@/types/other.type';
-import { AuthApi, baseUrl } from '@/utils/constants';
+import { AuthApi } from '@/utils/constants';
 import { enumToCamelCase } from '@/utils/funcs/func1';
 import { InputWrapper, Select, Button } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import React, { FC, useState } from 'react';
 import MainModal from '../core/modals/modal';
 import useGet from '@/hooks/useGet';
-import { getCookie } from 'cookies-next';
 import { IClass } from '@/types/class.type';
+import { downloadPerformancePdf } from '@/utils/pdf/downloadPerformancePdf';
+import { getResError } from '@/utils/fetch';
 
 interface Props {
   action: 'release' | 'export';
@@ -37,54 +38,30 @@ const ReportReleasing: FC<Props> = ({ academicYear, setOpenRelease, action }) =>
     },
   );
 
-  const exportExcel = async () => {
+  const exportPdf = async () => {
+    if (!termId) {
+      setError('Select term to export ranking');
+      return;
+    }
+    if (!classId) {
+      setError('Select class to export ranking');
+      return;
+    }
+
+    setError('');
     setLoading(true);
-    if (termId === '') {
-      setError('Select term to release report cards');
-      return;
-    }
-    if (classId === '') {
-      setError('Select term to release report cards');
-      return;
-    }
-
     try {
-      let blob;
-
-      if (activeTab.toUpperCase() === 'ACADEMIC') {
-        const res = await fetch(
-          `${baseUrl}/api/v1/exporting/students-percentages?classId=${classId}&termId=${termId}&type=${activeTab}`,
-          {
-            headers: {
-              Authorization: `Bearer ${getCookie('token')}`,
-            },
-          },
-        );
-        blob = await res.blob();
-      } else {
-        const response = await AuthApi.get(
-          `/exporting/students/performance/?termId=${termId}&academicYearId=${academicYear.id}${
-            classId ? `&classId=${classId}` : ''
-          }&markType=${activeTab.toUpperCase()}`,
-          {
-            responseType: 'blob',
-          },
-        );
-        blob = response.data;
-      }
-
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      const classIt = classes?.find((classIt) => classIt.id === classId);
-      link.download = `${classIt?.className}-${activeTab}performance.xlsx`;
-      link.click();
-      link.remove();
+      await downloadPerformancePdf({
+        termId,
+        academicYearId: academicYear.id,
+        classId,
+        markType: activeTab.toUpperCase(),
+      });
       setOpenRelease(null);
     } catch (err) {
       notifications.show({
-        title: 'Error',
-        message: 'There has been an error in generating the excel, you may please reload!',
+        title: 'Export failed',
+        message: getResError(err) || 'Could not generate the ranking PDF.',
         color: 'red',
       });
     } finally {
@@ -247,11 +224,11 @@ const ReportReleasing: FC<Props> = ({ academicYear, setOpenRelease, action }) =>
           Cancel
         </Button>
         <Button
-          onClick={action === 'release' ? onRelease : exportExcel}
+          onClick={action === 'release' ? onRelease : exportPdf}
           loading={loading}
           disabled={loading}
         >
-          {action === 'release' ? 'Release' : 'Export Excel'}
+          {action === 'release' ? 'Release' : 'Download PDF'}
         </Button>
       </div>
       <MainModal isOpen={warn} onClose={() => setWarn(false)}>

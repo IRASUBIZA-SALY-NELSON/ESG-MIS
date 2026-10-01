@@ -4,7 +4,7 @@ import TermIndex from './_indexPage';
 export const revalidate = 15; // seconds
 
 export const metadata: Metadata = {
-  title: 'Terms - RCAMIS',
+  title: 'Terms - ESG',
   description: 'View and manage terms',
 };
 

@@ -81,11 +81,12 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
     return (
       <div className="flex flex-col  justify-center items-center h-screen w-full gap-5">
         <Image
-          src={'/logo.png'}
+          src="/logo.png"
           width={150}
           height={150}
           alt="ESG Logo"
           className="pulse"
+          style={{ width: 150, height: 150 }}
           priority
         />
       </div>
@@ -106,11 +107,12 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
       {loading && !isWhiteListed && !user ? (
         <div className="flex flex-col  justify-center items-center h-screen w-full gap-5">
           <Image
-            src={'/logo.png'}
+            src="/logo.png"
             width={150}
             height={150}
             alt="ESG Logo"
             className="pulse"
+            style={{ width: 150, height: 150 }}
             priority
           />
         </div>
@@ -119,11 +121,12 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
       ) : (
         <div className="flex flex-col  justify-center items-center h-screen w-full gap-5">
           <Image
-            src={'/logo.png'}
+            src="/logo.png"
             width={150}
             height={150}
             alt="ESG Logo"
             className="pulse"
+            style={{ width: 150, height: 150 }}
             priority
           />
         </div>

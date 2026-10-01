@@ -18,6 +18,7 @@ import rw.rca.mis.common.ApiResponse;
 import rw.rca.mis.repo.ParentLinkRepository;
 import rw.rca.mis.service.Lookup;
 import rw.rca.mis.service.MarksService;
+import rw.rca.mis.service.ReportCardDocumentService;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -25,11 +26,17 @@ public class MarksController {
   private final MarksService marks;
   private final Lookup lookup;
   private final ParentLinkRepository parentLinks;
+  private final ReportCardDocumentService documents;
 
-  public MarksController(MarksService marks, Lookup lookup, ParentLinkRepository parentLinks) {
+  public MarksController(
+      MarksService marks,
+      Lookup lookup,
+      ParentLinkRepository parentLinks,
+      ReportCardDocumentService documents) {
     this.marks = marks;
     this.lookup = lookup;
     this.parentLinks = parentLinks;
+    this.documents = documents;
   }
 
   @GetMapping({"/academicMarks/all/by-studentId", "/academicMarks/all/by-loggedIn-student"})
@@ -105,18 +112,21 @@ public class MarksController {
     return ApiResponse.ok(marks.lock(resolvedTerm, academicMarkType, locked, null, null, null));
   }
 
-  @GetMapping({
-    "/academicMarks/report-card/by-loggedIn-student",
-    "/academicMarks/report-card/by-student",
-    "/academicMarks/report-card/{studentId}"
-  })
-  public ApiResponse<?> report(
-      @PathVariable(required = false) UUID studentId, @RequestParam(required = false) UUID id) {
-    UUID resolved = studentId != null ? studentId : id;
-    if (resolved == null) {
-      resolved = lookup.currentUser().getId();
-    }
-    return ApiResponse.ok(marks.reportCard(resolved));
+  @GetMapping("/academicMarks/report-card/by-loggedIn-student")
+  public ApiResponse<?> loggedInReport(@RequestParam(required = false) UUID academicYearId) {
+    return ApiResponse.ok(marks.reportCard(lookup.currentUser().getId(), academicYearId));
+  }
+
+  @GetMapping("/academicMarks/report-card/by-student")
+  public ApiResponse<?> byStudent(
+      @RequestParam UUID studentId, @RequestParam(required = false) UUID academicYearId) {
+    return ApiResponse.ok(marks.reportCard(studentId, academicYearId));
+  }
+
+  @GetMapping("/academicMarks/report-card/{studentId}")
+  public ApiResponse<?> byPath(
+      @PathVariable UUID studentId, @RequestParam(required = false) UUID academicYearId) {
+    return ApiResponse.ok(marks.reportCard(studentId, academicYearId));
   }
 
   @GetMapping("/academicMarks/report-card/by-parent")
@@ -124,13 +134,26 @@ public class MarksController {
       @RequestParam(required = false) String token,
       @RequestParam(required = false) UUID studentId,
       @RequestParam(required = false) UUID academicYearId) {
+    requireParentToken(token, studentId);
+    return ApiResponse.ok(marks.reportCard(studentId, academicYearId));
+  }
+
+  @GetMapping("/academicMarks/report-card-document/by-parent")
+  public ApiResponse<?> documentByParent(
+      @RequestParam(required = false) String token,
+      @RequestParam(required = false) UUID studentId,
+      @RequestParam(required = false) UUID academicYearId) {
+    requireParentToken(token, studentId);
+    return ApiResponse.ok(documents.document(studentId, academicYearId));
+  }
+
+  private void requireParentToken(String token, UUID studentId) {
     if (token == null || token.isBlank() || studentId == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "token and studentId are required");
     }
     if (!parentLinks.existsByReportCardTokenAndStudentId(token, studentId)) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid report card token");
     }
-    return ApiResponse.ok(marks.reportCard(studentId, academicYearId));
   }
 
   @GetMapping("/academicMarks/second-sitting/by-student-and-course")
@@ -140,7 +163,7 @@ public class MarksController {
   }
 
   @PostMapping({"/report-cards/validate", "/report-cards/validate-all"})
-  public ApiResponse<String> validate() {
-    return ApiResponse.ok("Report card validated");
+  public ApiResponse<?> validate(@RequestBody(required = false) Map<String, Object> body) {
+    return ApiResponse.ok(marks.validateReportCards(body == null ? Map.of() : body));
   }
 }

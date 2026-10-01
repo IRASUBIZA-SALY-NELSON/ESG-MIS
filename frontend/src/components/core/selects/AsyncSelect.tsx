@@ -65,22 +65,24 @@ const AsyncSelect: FC<Props> = ({
   useEffect(() => {
     if (!data || !Array.isArray(data)) return;
 
-    const dataSet = new Set(data?.map((item) => JSON.stringify(item)));
-    const newData = [...dataSet].map((item) => JSON.parse(item));
+    const dataSet = new Set(data.filter(Boolean).map((item) => JSON.stringify(item)));
+    const newData = [...dataSet].map((item) => JSON.parse(item)).filter(Boolean);
     setData?.(newData);
     const _data = (filterData ? filterData(newData) : newData) as any[];
-    const selectData = _data?.map((item) => ({
-      value: String(item[accessorKey ?? 'id']),
-      label: getLabel
-        ? getLabel(item)
-        : enumToCamelCase(getObjValue(labelKey ?? 'name', item) ?? item[labelKey ?? 'name']),
-    }));
+    const selectData = (_data ?? [])
+      .filter((item) => item && item[accessorKey ?? 'id'] != null)
+      .map((item) => ({
+        value: String(item[accessorKey ?? 'id']),
+        label: getLabel
+          ? getLabel(item)
+          : enumToCamelCase(getObjValue(labelKey ?? 'name', item) ?? item[labelKey ?? 'name']),
+      }));
     setSelectedData(selectData ?? []);
-    const selected = _data?.find((item) => item[accessorKey ?? 'id'] === value);
-    setActive?.(selected);
+    const selectedItem = _data?.find((item) => item && item[accessorKey ?? 'id'] === value);
+    setActive?.(selectedItem ?? null);
 
-    if (selected) {
-      setSelected(selected.id);
+    if (selectedItem?.[accessorKey ?? 'id'] != null) {
+      setSelected(selectedItem[accessorKey ?? 'id']);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessorKey, data, labelKey, value]);
@@ -103,8 +105,8 @@ const AsyncSelect: FC<Props> = ({
       searchable
       size={size ?? 'sm'}
       onChange={(e) => {
-        const selected = data?.find((item) => item[accessorKey ?? 'id'] === e);
-        setActive?.(selected);
+        const selectedItem = data?.find((item) => item && item[accessorKey ?? 'id'] === e);
+        setActive?.(selectedItem ?? null);
 
         setSelected(e!);
         onChange?.(e);

@@ -55,6 +55,8 @@ public class SecurityConfig {
                         "/api/v1/auth/verify-reset-code",
                         "/api/v1/auth/verify-account",
                         "/api/v1/academicMarks/report-card/by-parent",
+                        "/api/v1/academicMarks/report-card-document/by-parent",
+                        "/api/v1/deductions/ds-marks/by-parent",
                         "/api/parents/destructure-token/**")
                     .permitAll()
                     .requestMatchers("/api/v1/parent-portal/**")

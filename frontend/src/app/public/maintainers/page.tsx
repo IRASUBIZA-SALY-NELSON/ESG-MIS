@@ -1,7 +1,7 @@
 import Maintainers from '@/components/Maintainers';
 
 export const metadata = {
-  title: 'Maintainers - RCAMIS',
+  title: 'Maintainers - ESG',
   description: 'Those who developed/maintain this platform',
 };
 

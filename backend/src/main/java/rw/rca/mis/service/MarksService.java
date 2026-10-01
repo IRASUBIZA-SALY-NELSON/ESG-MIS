@@ -1,20 +1,27 @@
 package rw.rca.mis.service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import rw.rca.mis.domain.AcademicMark;
 import rw.rca.mis.domain.AcademicYear;
 import rw.rca.mis.domain.Course;
 import rw.rca.mis.domain.ParentLink;
 import rw.rca.mis.domain.Person;
+import rw.rca.mis.domain.SchoolClass;
+import rw.rca.mis.domain.Term;
 import rw.rca.mis.repo.AcademicMarkRepository;
 import rw.rca.mis.repo.CourseRepository;
 import rw.rca.mis.repo.ParentLinkRepository;
+import rw.rca.mis.repo.SchoolClassRepository;
+import rw.rca.mis.repo.TermRepository;
 
 @Service
 public class MarksService {
@@ -24,13 +31,25 @@ public class MarksService {
   private final CourseRepository courses;
   private final Lookup lookup;
   private final ParentLinkRepository parentLinks;
+  private final TermRepository terms;
+  private final SchoolClassRepository classes;
+  private final PeopleService people;
 
   public MarksService(
-      AcademicMarkRepository marks, CourseRepository courses, Lookup lookup, ParentLinkRepository parentLinks) {
+      AcademicMarkRepository marks,
+      CourseRepository courses,
+      Lookup lookup,
+      ParentLinkRepository parentLinks,
+      TermRepository terms,
+      SchoolClassRepository classes,
+      PeopleService people) {
     this.marks = marks;
     this.courses = courses;
     this.lookup = lookup;
     this.parentLinks = parentLinks;
+    this.terms = terms;
+    this.classes = classes;
+    this.people = people;
   }
 
   public List<AcademicMark> forStudent(UUID studentId) {
@@ -108,6 +127,95 @@ public class MarksService {
       changed++;
     }
     return changed;
+  }
+
+  @Transactional(readOnly = true)
+  public Map<String, Object> validateReportCards(Map<String, Object> body) {
+    UUID yearId = Lookup.uuid(body.get("academicYearId"));
+    if (yearId == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Select an academic year");
+    }
+    lookup.year(yearId);
+    UUID classId = Lookup.uuid(body.get("classId"));
+    UUID termId = Lookup.uuid(body.get("termId"));
+
+    List<Term> scope = terms.findByAcademicYearIdOrderByStartDateAsc(yearId);
+    if (termId != null) {
+      scope = scope.stream().filter(term -> termId.equals(term.getId())).toList();
+      if (scope.isEmpty()) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "That term is not in the selected academic year");
+      }
+    }
+
+    Map<UUID, List<AcademicMark>> marksByStudent = new LinkedHashMap<>();
+    for (Term term : scope) {
+      for (AcademicMark mark : marks.findByTermId(term.getId())) {
+        if (mark.getStudent() == null || mark.getCourse() == null || mark.getMarks() == null) {
+          continue;
+        }
+        if ("SECOND_SITTING".equalsIgnoreCase(mark.getMarkType())) {
+          continue;
+        }
+        marksByStudent.computeIfAbsent(mark.getStudent().getId(), id -> new ArrayList<>()).add(mark);
+      }
+    }
+
+    List<SchoolClass> classList =
+        classId == null ? classes.findAllByOrderByClassNameAsc() : List.of(lookup.schoolClass(classId));
+    Map<String, Object> results = new LinkedHashMap<>();
+    for (SchoolClass schoolClass : classList) {
+      List<Person> students =
+          termId == null ? people.studentsInClass(schoolClass.getId()) : people.studentsForClassTerm(schoolClass.getId(), termId);
+      List<Course> courseList = new ArrayList<>(schoolClass.getCourses());
+      courseList.sort(Comparator.comparing(Course::getCourseName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+      for (Person student : students) {
+        results.put(
+            student.getId().toString(),
+            studentValidation(student, schoolClass, courseList, marksByStudent.getOrDefault(student.getId(), List.of())));
+      }
+    }
+    Map<String, Object> data = new LinkedHashMap<>();
+    data.put("results", results);
+    return data;
+  }
+
+  private Map<String, Object> studentValidation(
+      Person student, SchoolClass schoolClass, List<Course> courseList, List<AcademicMark> studentMarks) {
+    List<Map<String, Object>> subjectMarks = new ArrayList<>();
+    boolean needsSecondSitting = false;
+    for (Course course : courseList) {
+      double obtained = 0;
+      double max = 0;
+      for (AcademicMark mark : studentMarks) {
+        if (!course.getId().equals(mark.getCourse().getId())) {
+          continue;
+        }
+        obtained += mark.getMarks();
+        max += mark.getWeight() == null || mark.getWeight() <= 0 ? 100 : mark.getWeight();
+      }
+      double pass = course.getPassMark() == null ? 50 : course.getPassMark();
+      double percentage = max > 0 ? obtained * 100 / max : 0;
+      boolean subjectNeedsSitting = percentage + 1e-9 < pass;
+      needsSecondSitting = needsSecondSitting || subjectNeedsSitting;
+      Map<String, Object> subject = new LinkedHashMap<>();
+      subject.put("courseId", course.getId());
+      subject.put("courseName", course.getCourseName());
+      subject.put("marks", round(obtained));
+      subject.put("courseWeight", round(max > 0 ? max : weightOf(course)));
+      subject.put("percentage", round(percentage));
+      subject.put("needsSecondSitting", subjectNeedsSitting);
+      subjectMarks.add(subject);
+    }
+    Map<String, Object> row = new LinkedHashMap<>();
+    row.put("studentName", student.fullName());
+    row.put("className", schoolClass.getClassName());
+    row.put("needsSecondSitting", needsSecondSitting);
+    row.put("subjectMarks", subjectMarks);
+    return row;
+  }
+
+  private static double round(double value) {
+    return Math.round(value * 100.0) / 100.0;
   }
 
   public Map<String, Object> reportCard(UUID studentId) {

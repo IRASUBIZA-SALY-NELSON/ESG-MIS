@@ -15,6 +15,7 @@ import rw.rca.mis.common.ApiResponse;
 import rw.rca.mis.service.DashboardService;
 import rw.rca.mis.service.ExtrasService;
 import rw.rca.mis.service.Lookup;
+import rw.rca.mis.service.PerformanceExportService;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -22,11 +23,14 @@ public class PortalController {
   private final DashboardService dashboard;
   private final ExtrasService extras;
   private final Lookup lookup;
+  private final PerformanceExportService performanceExport;
 
-  public PortalController(DashboardService dashboard, ExtrasService extras, Lookup lookup) {
+  public PortalController(
+      DashboardService dashboard, ExtrasService extras, Lookup lookup, PerformanceExportService performanceExport) {
     this.dashboard = dashboard;
     this.extras = extras;
     this.lookup = lookup;
+    this.performanceExport = performanceExport;
   }
 
   @GetMapping({
@@ -146,8 +150,24 @@ public class PortalController {
     return ApiResponse.ok("Availability saved");
   }
 
-  @GetMapping("/exporting/students/performance/")
-  public ApiResponse<?> performance() {
-    return ApiResponse.ok(dashboard.summary(null));
+  @GetMapping({
+    "/exporting/students/performance/",
+    "/exporting/students/performance",
+    "/exporting/students-percentages",
+    "/exporting/students/marks"
+  })
+  public ApiResponse<?> performance(
+      @RequestParam UUID termId,
+      @RequestParam(required = false) UUID academicYearId,
+      @RequestParam(required = false) UUID classId,
+      @RequestParam(required = false) String markType,
+      @RequestParam(required = false) String type) {
+    String kind = markType != null && !markType.isBlank() ? markType : type;
+    return ApiResponse.ok(performanceExport.ranking(termId, academicYearId, classId, kind));
+  }
+
+  @GetMapping("/exporting/election-results/{sessionId}")
+  public ApiResponse<?> electionResults(@PathVariable UUID sessionId) {
+    return ApiResponse.ok(extras.electionResults(sessionId));
   }
 }

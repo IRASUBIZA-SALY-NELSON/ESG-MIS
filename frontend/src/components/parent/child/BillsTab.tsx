@@ -1,18 +1,8 @@
 'use client';
 import { useParentData } from '@/components/parent/api';
 import { StudentAccount } from '@/components/finance/types';
-import { BillStatusBadge, categoryLabel, DepartmentBadge, rwf } from '@/components/finance/ui';
-import {
-  Column,
-  DataTable,
-  EmptyBlock,
-  ErrorBlock,
-  KpiCard,
-  LoadingBlock,
-  Section,
-  fmtDate,
-} from '@/components/library/ui';
-import { FaFileInvoiceDollar, FaMoneyBillWave } from 'react-icons/fa';
+import { BillStatusBadge, categoryLabel, rwf } from '@/components/finance/ui';
+import { EmptyBlock, ErrorBlock, LoadingBlock, fmtDate } from '@/components/library/ui';
 
 export default function BillsTab({ studentId }: { studentId: string }) {
   const { data: account, loading, error, refresh } = useParentData<StudentAccount>(
@@ -25,90 +15,43 @@ export default function BillsTab({ studentId }: { studentId: string }) {
 
   const t = account.totals;
 
-  const columns: Column<(typeof account.bills)[0]>[] = [
-    {
-      key: 'bill',
-      header: 'Bill',
-      sortValue: (b) => b.billNumber,
-      render: (b) => (
-        <div>
-          <p className="font-medium">{b.billNumber}</p>
-          <p className="text-xs text-gray-500">{b.title}</p>
-        </div>
-      ),
-    },
-    {
-      key: 'type',
-      header: 'Type',
-      render: (b) => (
-        <div className="flex flex-col gap-1 items-start">
-          {categoryLabel(b.category)}
-          <DepartmentBadge department={b.department} />
-        </div>
-      ),
-    },
-    {
-      key: 'due',
-      header: 'Pay by',
-      sortValue: (b) => b.dueDate ?? '',
-      render: (b) => fmtDate(b.dueDate),
-    },
-    {
-      key: 'amount',
-      header: 'Amount',
-      align: 'right',
-      sortValue: (b) => b.amount,
-      render: (b) => rwf(b.amount),
-    },
-    {
-      key: 'balance',
-      header: 'Balance',
-      align: 'right',
-      sortValue: (b) => b.balance,
-      render: (b) => (
-        <b className={b.balance > 0 ? 'text-red-600' : 'text-teal-700'}>{rwf(b.balance)}</b>
-      ),
-    },
-    {
-      key: 'status',
-      header: 'Status',
-      render: (b) => <BillStatusBadge bill={b} />,
-    },
-  ];
-
   return (
-    <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <KpiCard label="Total billed" value={rwf(t.billed)} icon={<FaFileInvoiceDollar />} />
-        <KpiCard label="Paid" value={rwf(t.paid)} tone="teal" icon={<FaMoneyBillWave />} />
-        <KpiCard
-          label="Balance"
-          value={rwf(t.balance)}
-          hint={
-            t.unpaidBills > 0
-              ? `${t.unpaidBills} bill(s) not fully paid`
-              : 'Nothing outstanding'
-          }
-          tone={t.balance > 0 ? 'red' : 'teal'}
-        />
+    <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-2 gap-2">
+        <div className="bg-white rounded-2xl border p-3">
+          <p className="text-xs text-gray-500">Billed</p>
+          <p className="text-lg font-semibold text-primary">{rwf(t.billed)}</p>
+        </div>
+        <div className="bg-white rounded-2xl border p-3">
+          <p className="text-xs text-gray-500">Balance</p>
+          <p className={`text-lg font-semibold ${t.balance > 0 ? 'text-red-600' : 'text-teal-700'}`}>
+            {rwf(t.balance)}
+          </p>
+        </div>
       </div>
 
-      <Section title="Bills">
-        {!account.bills.length ? (
-          <EmptyBlock>No bills for this child yet.</EmptyBlock>
-        ) : (
-          <DataTable
-            rows={account.bills}
-            columns={columns}
-            empty="No bills."
-            defaultSort={{ key: 'due', dir: 'desc' }}
-          />
-        )}
-      </Section>
-
-      <p className="text-xs text-gray-500">
-        Read-only view. Payments are recorded at school or submitted by your child with proof.
-      </p>
+      {!account.bills.length ? (
+        <EmptyBlock>No bills yet.</EmptyBlock>
+      ) : (
+        account.bills.map((b) => (
+          <div key={b.id} className="bg-white rounded-2xl border p-3 flex flex-col gap-1">
+            <div className="flex justify-between gap-2">
+              <p className="font-medium">{b.title}</p>
+              <BillStatusBadge bill={b} />
+            </div>
+            <p className="text-xs text-gray-500">
+              {categoryLabel(b.category)}
+              {b.dueDate ? ` · due ${fmtDate(b.dueDate)}` : ''}
+            </p>
+            <div className="flex justify-between text-sm pt-1">
+              <span>{rwf(b.amount)}</span>
+              <span className={b.balance > 0 ? 'text-red-600 font-medium' : 'text-teal-700'}>
+                {rwf(b.balance)} left
+              </span>
+            </div>
+          </div>
+        ))
+      )}
     </div>
   );
 }

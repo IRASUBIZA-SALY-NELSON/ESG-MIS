@@ -6,7 +6,14 @@ const AuthLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex flex-col h-screen gap-1 overflow-y-auto">
       <div className="flex items-center flex-col gap-4 justify-center h-full">
-        <Image src="/logo.png" width={150} height={150} alt="logo" priority />
+        <Image
+          src="/logo.png"
+          width={150}
+          height={150}
+          alt="logo"
+          style={{ width: 150, height: 150 }}
+          priority
+        />
         {children}
       </div>
     </div>

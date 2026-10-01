@@ -358,7 +358,7 @@ const Transcript = ({ yearSections, studentName, studentProfilePic }: Props) => 
 
               <Image style={{ width: 32, height: 32, marginTop: 4 }} src={rcaLogo} />
               <Text style={[T.mid, { marginTop: 4 }]}>Tel: (+250) 788 548 000</Text>
-              <Text style={[T.mid]}>Email: papiasni@gmail.com</Text>
+              <Text style={[T.mid]}>Email: salynelson@gmail.com</Text>
             </View>
 
             <View style={{ flexDirection: 'column', alignItems: 'center', gap: 6, flex: 1 }}>
