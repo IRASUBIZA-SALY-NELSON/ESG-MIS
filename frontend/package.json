@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "prepare": "husky install",
+    "prepare": "node -e \"if(process.env.VERCEL||process.env.CI)process.exit(0);process.exit(1)\" || husky install",
     "dev": "next dev -p 5443",
     "build": "NEXT_IGNORE_INCORRECT_LOCKFILE=1 node --max-old-space-size=4096 ./node_modules/next/dist/bin/next build",
     "start": "next start -p 5443",
