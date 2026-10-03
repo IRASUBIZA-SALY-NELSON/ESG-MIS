@@ -150,7 +150,7 @@ export default ({
   const isThirdTermReleased =
     thirdTerm?.termMarksStatus === 'EXAM' || (shouldShowAll && terms?.length === 3);
 
-  const isYearReleased = hasThirdTerm && isThirdTermReleased;
+  const isYearReleased = Boolean(hasThirdTerm && isThirdTermReleased);
 
   // find the last term that has marks
   const lastTerm = terms?.find(
