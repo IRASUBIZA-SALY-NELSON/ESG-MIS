@@ -1,5 +1,9 @@
 'use client';
-import { Document, Page } from 'react-pdf';
+import dynamic from 'next/dynamic';
+
+const Document = dynamic(() => import('react-pdf').then((mod) => mod.Document), { ssr: false });
+const Page = dynamic(() => import('react-pdf').then((mod) => mod.Page), { ssr: false });
+
 const PdfViewer = ({ url }: { url: string }) => {
   // const defaultLayoutPluginInstance = defaultLayoutPlugin();
 
