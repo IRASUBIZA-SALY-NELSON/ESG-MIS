@@ -15,7 +15,7 @@
     "test": "vitest run"
   },
   "engines": {
-    "node": ">=16 <21"
+    "node": "24.x"
   },
   "dependencies": {
     "@cyntler/react-doc-viewer": "^1.14.1",

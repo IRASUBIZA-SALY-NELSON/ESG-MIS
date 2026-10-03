@@ -1,5 +1,6 @@
 server:
-  port: 6543
+  # Render (and most PaaS) inject PORT; local default stays 6543.
+  port: ${PORT:6543}
   address: 0.0.0.0
 
 spring:
@@ -22,10 +23,11 @@ spring:
           timeout: 10000
           writetimeout: 10000
   datasource:
-    url: jdbc:h2:file:./data/esg_mis;MODE=PostgreSQL;AUTO_SERVER=TRUE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    # Local default: H2 file DB. On Render, link Postgres so DATABASE_URL is set (see RenderDatabaseConfig).
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:file:./data/esg_mis;MODE=PostgreSQL;AUTO_SERVER=TRUE}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.h2.Driver}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
   jpa:
     hibernate:
       ddl-auto: update
@@ -47,9 +49,14 @@ spring:
 
 app:
   jwt:
-    secret: esg-mis-dev-jwt-secret-key-change-me-32b
-    expiration-ms: 86400000
+    secret: ${APP_JWT_SECRET:esg-mis-dev-jwt-secret-key-change-me-32b}
+    expiration-ms: ${APP_JWT_EXPIRATION_MS:86400000}
   mail:
-    from-name: Ecole des Sciences de Gisenyi
+    from-name: ${APP_MAIL_FROM_NAME:Ecole des Sciences de Gisenyi}
   cors:
-    origins: http://localhost:5443,http://127.0.0.1:5443,http://192.168.0.115:5443
+    origins: ${APP_CORS_ORIGINS:http://localhost:5443,http://127.0.0.1:5443,http://192.168.0.115:5443}
+  notes:
+    storage-dir: ${APP_NOTES_STORAGE_DIR:./data/notes}
+    soffice: ${APP_NOTES_SOFFICE:soffice}
+  finance:
+    proof-dir: ${APP_FINANCE_PROOF_DIR:./data/payment-proofs}
